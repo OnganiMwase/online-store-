@@ -3,48 +3,150 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Shop - ShopEasy</title>
-  <link rel="stylesheet" href="/css/main.css">
-  <link rel="stylesheet" href="/css/layout.css">
-  <link rel="stylesheet" href="/css/components.css">
-  <link rel="stylesheet" href="/css/pages/shop.css">
+  <title>Browse Shop — ShopEasy</title>
+  <meta name="description" content="Browse local marketplace listings across Malawi on ShopEasy.">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages/shop.css">
 </head>
 <body>
-  <div class="app-container">
-    <div id="header-container"></div>
 
-    <main class="content">
-      <!-- Filter and Options Bar -->
-      <div class="shop-filter-bar">
-        <div class="shop-search">
-          <input type="text" id="shop-search-input" placeholder="Search in Shop...">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shop-search-icon"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+  <div class="app-container">
+
+  <!-- TOP BAR -->
+  <header class="top-bar" id="topBar">
+    <div class="top-bar__logo" onclick="location.href='index.html'" style="cursor: pointer;">
+      <span class="logo-box">SE</span>
+      <span class="logo-text">ShopEasy</span>
+    </div>
+    <form class="top-bar__search" action="search.html" method="get">
+      <input type="search" name="q" 
+        placeholder="Search ShopEasy..." 
+        class="search-input" autocomplete="off">
+      <button type="submit" class="search-btn" aria-label="Search">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      </button>
+    </form>
+    <div class="top-bar__actions">
+      <a href="messages.html" class="icon-btn" id="msgBtn"
+        aria-label="Messages">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-circle"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+        <span class="badge badge--red hidden" id="msgBadge">0</span>
+      </a>
+      <span class="flag">🇲🇼</span>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="page-main shop-page-layout">
+    <div class="shop-grid">
+      
+      <!-- LEFT SIDEBAR -->
+      <aside class="shop-sidebar" id="shopSidebar">
+        <div class="sidebar-header">
+          <h3 class="sidebar-title">Categories</h3>
+          <button class="sidebar-close-btn" id="closeSidebarBtn" aria-label="Close categories">&times;</button>
         </div>
         
-        <div class="shop-sort">
-          <select id="sort-select" class="sort-select-input">
-            <option value="newest">Latest Listings</option>
-            <option value="price-asc">Price: Low to High</option>
-            <option value="price-desc">Price: High to Low</option>
-          </select>
+        <div class="sidebar-content">
+          <ul class="sidebar-category-list" id="sidebarCategoryList">
+            <!-- Loaded from Firestore -->
+            <div class="sidebar-skeleton-list">
+              <div class="category-skeleton-item"></div>
+              <div class="category-skeleton-item"></div>
+              <div class="category-skeleton-item"></div>
+              <div class="category-skeleton-item"></div>
+              <div class="category-skeleton-item"></div>
+            </div>
+          </ul>
+          
+          <div class="sidebar-divider"></div>
+          
+          <a href="shop.html" class="all-products-link all-products-link--active" id="allProductsLink">
+            <span class="all-products-icon">🛍️</span>
+            <span class="all-products-text">All Products</span>
+          </a>
         </div>
-      </div>
+      </aside>
 
-      <!-- Categories Filter Slider -->
-      <div class="categories-filter horizontal-scroll" id="shop-categories">
-        <button class="filter-tab filter-tab--active" data-id="all">All Items</button>
-        <!-- Categories tabs injected here -->
-      </div>
+      <!-- SIDEBAR BACKDROP FOR MOBILE -->
+      <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
-      <!-- Product Listings Grid -->
-      <div class="grid-2" id="shop-products-grid" style="margin-top: 16px;">
-        <!-- Injected product cards -->
-      </div>
-    </main>
+      <!-- MAIN CONTENT AREA -->
+      <section class="shop-main-content">
+        
+        <div class="shop-header-row">
+          <h1 class="shop-page-title">Browse Shop</h1>
+          <!-- Mobile Sidebar Toggle -->
+          <button class="btn btn--outline btn--sm sidebar-toggle-btn" id="sidebarToggleBtn">
+            📁 Categories
+          </button>
+        </div>
 
-    <div id="nav-container"></div>
+        <!-- TABS -->
+        <div class="shop-tabs-container">
+          <div class="shop-tabs" id="shopTabs">
+            <button class="shop-tab shop-tab--active" data-tab="for-you">For You</button>
+            <button class="shop-tab" data-tab="new-arrivals">New Arrivals</button>
+            <button class="shop-tab" data-tab="popular">Popular</button>
+            <button class="shop-tab" data-tab="by-location">By Location</button>
+          </div>
+        </div>
+
+        <!-- PRODUCT GRID -->
+        <div class="grid-2" id="shopProductGrid" style="margin-top: 16px;">
+          <!-- Loaded by JS, with skeletons first -->
+        </div>
+
+        <div id="shopEmptyState" class="hidden"></div>
+
+        <!-- LOAD MORE BUTTON -->
+        <div class="load-more-container" style="margin-top: 24px;">
+          <button class="btn btn--outline btn--full" id="loadMoreBtn" style="display: none;">
+            Load More
+          </button>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- MOBILE FILTER FAB -->
+  <button class="filter-fab" id="filterFab" aria-label="Open Filters">
+    <span>⚙️ Categories</span>
+  </button>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <a href="index.html" class="bottom-nav__item">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-home"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </a>
+    <a href="shop.html" class="bottom-nav__item bottom-nav__item--active">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-grid"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+      <span>Shop</span>
+    </a>
+    <a href="sell-redirect.html" class="bottom-nav__item bottom-nav__item--sell">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-circle"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
+      <span>Sell</span>
+    </a>
+    <a href="cart.html" class="bottom-nav__item">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+      <span class="relative">
+        Cart
+        <span class="badge badge--red hidden" id="cartBadge">0</span>
+      </span>
+    </a>
+    <a href="account.html" class="bottom-nav__item">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Account</span>
+    </a>
+  </nav>
+
   </div>
 
-  <script type="module" src="/js/pages/shop.js"></script>
+  <script type="module" src="js/pages/shop.js"></script>
 </body>
 </html>

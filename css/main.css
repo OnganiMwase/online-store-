@@ -233,3 +233,8 @@ a {
   background: #E3F2FD;
   color: #1565C0;
 }
+
+/* Utilities */
+.hidden {
+  display: none !important;
+}

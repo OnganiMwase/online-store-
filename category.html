@@ -3,45 +3,198 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Category - ShopEasy</title>
-  <link rel="stylesheet" href="/css/main.css">
-  <link rel="stylesheet" href="/css/layout.css">
-  <link rel="stylesheet" href="/css/components.css">
-  <link rel="stylesheet" href="/css/pages/shop.css">
+  <title>Category — ShopEasy</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages/shop.css">
 </head>
-<body>
+<body class="category-page-body">
+
   <div class="app-container">
-    <!-- Category Back/Header Bar -->
-    <header class="header">
-      <button class="header__btn" onclick="history.back()" style="display: flex;">
+    
+    <!-- TOP HEADER -->
+    <header class="category-top-header">
+      <button class="header-back-btn" id="categoryBackBtn" aria-label="Go back">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg>
       </button>
-      <h2 class="modal__title" id="category-page-title">Category Products</h2>
-      <div style="width: 22px;"></div> <!-- Spacer -->
+      
+      <div class="category-meta-info">
+        <div class="category-title-text" id="categoryNameHeader">Loading...</div>
+        <div class="category-product-count" id="categoryProductCount">0 products</div>
+      </div>
+      
+      <!-- Spacer for balance -->
+      <div style="width: 22px;"></div>
     </header>
 
-    <main class="content">
-      <!-- Sort Option Bar inside Category -->
-      <div class="shop-filter-bar">
-        <div style="font-size: 0.85rem; font-weight: 600; color: var(--grey-600);" id="items-count">0 items found</div>
-        <div class="shop-sort" style="max-width: 150px;">
-          <select id="category-sort" class="sort-select-input">
-            <option value="newest">Latest Listings</option>
-            <option value="price-asc">Price: Low to High</option>
-            <option value="price-desc">Price: High to Low</option>
-          </select>
-        </div>
+    <!-- FILTER & SORT BAR (HORIZONTAL CHIPS) -->
+    <div class="filter-chips-bar">
+      <button class="filter-action-btn" id="openFiltersBtn">
+        <span>⚙️ Filter</span>
+      </button>
+      <button class="filter-action-btn" id="openSortBtn">
+        <span id="currentSortText">Sort: Newest</span>
+      </button>
+      
+      <div class="horizontal-scroll-chips" id="activeFilterChips">
+        <!-- Active Filter chips injected here -->
+      </div>
+    </div>
+
+    <!-- MAIN GRID AREA -->
+    <main class="content" style="padding-bottom: 90px;">
+      
+      <!-- Approx count text -->
+      <div style="font-size: 0.78rem; font-weight: 600; color: var(--grey-600); margin-bottom: 12px; display: none;" id="showingCountText">
+        Showing 0 of approximately 0 products
       </div>
 
-      <!-- Category listings grid -->
-      <div class="grid-2" id="category-products-grid">
-        <!-- Injected product cards -->
+      <!-- PRODUCT GRID -->
+      <div class="grid-2" id="productGrid">
+        <!-- Loaded by JS, with skeletons first -->
       </div>
+
+      <!-- LOAD MORE BUTTON -->
+      <div class="load-more-container" style="margin-top: 24px; text-align: center;">
+        <button class="btn btn--outline btn--full" id="loadMoreBtn" style="display: none;">
+          Load More
+        </button>
+      </div>
+
     </main>
 
-    <div id="nav-container"></div>
+    <!-- FILTER BOTTOM SHEET DRAWER -->
+    <div class="bottom-sheet" id="filterSheet">
+      <div class="bottom-sheet-content">
+        <div class="bottom-sheet-header">
+          <h3 class="bottom-sheet-title">Filters</h3>
+          <button class="bottom-sheet-close" id="closeFilterSheet">&times;</button>
+        </div>
+        
+        <div class="bottom-sheet-body">
+          
+          <!-- Price filter section -->
+          <div class="filter-section">
+            <h4 class="filter-section-title">Price Range (MWK)</h4>
+            <div class="price-inputs">
+              <input type="number" class="price-input-field" id="minPrice" placeholder="Min" min="0">
+              <span class="price-divider">to</span>
+              <input type="number" class="price-input-field" id="maxPrice" placeholder="Max" min="0">
+            </div>
+          </div>
+          
+          <!-- City filter section -->
+          <div class="filter-section">
+            <h4 class="filter-section-title">Seller City</h4>
+            <div class="cities-grid" id="citiesFilterGrid">
+              <label class="city-checkbox-label" data-city="all">
+                <input type="checkbox" name="cityFilter" value="all" checked>
+                <span>All Cities</span>
+              </label>
+              <label class="city-checkbox-label" data-city="Lilongwe">
+                <input type="checkbox" name="cityFilter" value="Lilongwe">
+                <span>Lilongwe</span>
+              </label>
+              <label class="city-checkbox-label" data-city="Blantyre">
+                <input type="checkbox" name="cityFilter" value="Blantyre">
+                <span>Blantyre</span>
+              </label>
+              <label class="city-checkbox-label" data-city="Mzuzu">
+                <input type="checkbox" name="cityFilter" value="Mzuzu">
+                <span>Mzuzu</span>
+              </label>
+              <label class="city-checkbox-label" data-city="Zomba">
+                <input type="checkbox" name="cityFilter" value="Zomba">
+                <span>Zomba</span>
+              </label>
+              <label class="city-checkbox-label" data-city="Kasungu">
+                <input type="checkbox" name="cityFilter" value="Kasungu">
+                <span>Kasungu</span>
+              </label>
+              <label class="city-checkbox-label" data-city="Mangochi">
+                <input type="checkbox" name="cityFilter" value="Mangochi">
+                <span>Mangochi</span>
+              </label>
+              <label class="city-checkbox-label" data-city="Other">
+                <input type="checkbox" name="cityFilter" value="Other">
+                <span>Other</span>
+              </label>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="bottom-sheet-footer">
+          <button class="btn btn--outline" id="clearFiltersBtn" style="flex: 1;">Clear All</button>
+          <button class="btn btn--primary" id="applyFiltersBtn" style="flex: 2;">Apply Filters</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SORT BOTTOM SHEET DRAWER -->
+    <div class="bottom-sheet" id="sortSheet">
+      <div class="bottom-sheet-content" style="max-height: 50vh;">
+        <div class="bottom-sheet-header">
+          <h3 class="bottom-sheet-title">Sort By</h3>
+          <button class="bottom-sheet-close" id="closeSortSheet">&times;</button>
+        </div>
+        
+        <div class="bottom-sheet-body">
+          <div class="sort-options-list">
+            <div class="sort-option-item sort-option-item--active" data-sort="newest">
+              <span>Newest First</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="sort-option-check"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            
+            <div class="sort-option-item" data-sort="price-asc">
+              <span>Price: Low to High</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="sort-option-check"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            
+            <div class="sort-option-item" data-sort="price-desc">
+              <span>Price: High to Low</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="sort-option-check"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            
+            <div class="sort-option-item" data-sort="popular">
+              <span>Most Sold</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="sort-option-check"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+      <a href="index.html" class="bottom-nav__item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-home"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Home</span>
+      </a>
+      <a href="shop.html" class="bottom-nav__item bottom-nav__item--active">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-grid"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+        <span>Shop</span>
+      </a>
+      <a href="sell-redirect.html" class="bottom-nav__item bottom-nav__item--sell">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-circle"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
+        <span>Sell</span>
+      </a>
+      <a href="cart.html" class="bottom-nav__item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+        <span class="relative">
+          Cart
+          <span class="badge badge--red hidden" id="cartBadge">0</span>
+        </span>
+      </a>
+      <a href="account.html" class="bottom-nav__item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Account</span>
+      </a>
+    </nav>
+
   </div>
 
-  <script type="module" src="/js/pages/category.js"></script>
+  <script type="module" src="js/pages/category.js"></script>
 </body>
 </html>
