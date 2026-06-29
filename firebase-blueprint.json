@@ -1,0 +1,186 @@
+{
+  "entities": {
+    "Category": {
+      "title": "Category",
+      "description": "Product categories available on ShopEasy",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique category identifier" },
+        "name": { "type": "string", "description": "Display name of the category" },
+        "icon": { "type": "string", "description": "Icon emoji representing the category" }
+      },
+      "required": ["id", "name", "icon"]
+    },
+    "User": {
+      "title": "User",
+      "description": "User account details, including buyer and seller roles",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "city": { "type": "string" },
+        "avatar": { "type": "string" },
+        "role": { "type": "string", "enum": ["buyer", "seller"] },
+        "storeName": { "type": "string" },
+        "storeDescription": { "type": "string" },
+        "storePhone": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "name", "email"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Marketplace listing for items being sold",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "price": { "type": "number" },
+        "category": { "type": "string" },
+        "categoryName": { "type": "string" },
+        "image": { "type": "string" },
+        "description": { "type": "string" },
+        "freeDelivery": { "type": "boolean" },
+        "sellerId": { "type": "string" },
+        "city": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "price", "category", "image", "description", "sellerId", "city"]
+    },
+    "CartItem": {
+      "title": "CartItem",
+      "description": "Item in a user's shopping cart",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "price": { "type": "number" },
+        "image": { "type": "string" },
+        "quantity": { "type": "number" },
+        "sellerId": { "type": "string" }
+      },
+      "required": ["id", "name", "price", "quantity", "sellerId"]
+    },
+    "WishlistItem": {
+      "title": "WishlistItem",
+      "description": "An item saved on user's wishlist",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "price": { "type": "number" },
+        "image": { "type": "string" },
+        "addedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "price"]
+    },
+    "FollowedStore": {
+      "title": "FollowedStore",
+      "description": "Store followed by a buyer",
+      "type": "object",
+      "properties": {
+        "storeId": { "type": "string" },
+        "storeName": { "type": "string" },
+        "followedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["storeId", "storeName"]
+    },
+    "Conversation": {
+      "title": "Conversation",
+      "description": "A chat thread between a buyer and a seller",
+      "type": "object",
+      "properties": {
+        "buyerId": { "type": "string" },
+        "sellerId": { "type": "string" },
+        "productName": { "type": "string" },
+        "lastMessage": { "type": "string" },
+        "lastMessageTime": { "type": "string", "format": "date-time" },
+        "lastSenderId": { "type": "string" },
+        "unreadCount": { "type": "number" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["buyerId", "sellerId"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "Individual message in a chat room thread",
+      "type": "object",
+      "properties": {
+        "senderId": { "type": "string" },
+        "text": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["senderId", "text", "timestamp"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Purchase transaction details",
+      "type": "object",
+      "properties": {
+        "buyerId": { "type": "string" },
+        "buyerName": { "type": "string" },
+        "buyerPhone": { "type": "string" },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "price": { "type": "number" },
+              "quantity": { "type": "number" },
+              "sellerId": { "type": "string" }
+            }
+          }
+        },
+        "total": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "processing", "ready", "completed", "cancelled"] },
+        "city": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["buyerId", "buyerName", "items", "total", "status", "city"]
+    }
+  },
+  "firestore": {
+    "categories/{categoryId}": {
+      "schema": "Category",
+      "description": "Available categories list"
+    },
+    "users/{userId}": {
+      "schema": "User",
+      "description": "Profile data for users"
+    },
+    "products/{productId}": {
+      "schema": "Product",
+      "description": "Item listings listed by sellers"
+    },
+    "carts/{userId}/items/{productId}": {
+      "schema": "CartItem",
+      "description": "Cart items for a user"
+    },
+    "wishlists/{userId}/items/{productId}": {
+      "schema": "WishlistItem",
+      "description": "Wishlist items for a user"
+    },
+    "followedStores/{userId}/stores/{storeId}": {
+      "schema": "FollowedStore",
+      "description": "Sellers followed by a user"
+    },
+    "conversations/{conversationId}": {
+      "schema": "Conversation",
+      "description": "Chat conversations threads"
+    },
+    "conversations/{conversationId}/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Indivdual chat messages inside a thread"
+    },
+    "orders/{orderId}": {
+      "schema": "Order",
+      "description": "Completed or incoming purchase orders"
+    }
+  }
+}

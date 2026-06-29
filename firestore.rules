@@ -1,0 +1,161 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Standard global helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Standing validators
+    function isValidUser(data) {
+      return data.uid is string && data.uid.size() <= 128 &&
+             data.name is string && data.name.size() <= 100 &&
+             data.email is string && data.email.size() <= 100;
+    }
+
+    function isValidProduct(data) {
+      return data.name is string && data.name.size() <= 200 &&
+             data.price is number && data.price >= 0 &&
+             data.category is string && data.category.size() <= 100 &&
+             data.image is string && data.image.size() <= 2000 &&
+             data.description is string && data.description.size() <= 5000 &&
+             data.sellerId == request.auth.uid &&
+             data.city is string && data.city.size() <= 100;
+    }
+
+    function isValidCartItem(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.name is string && data.name.size() <= 200 &&
+             data.price is number && data.price >= 0 &&
+             data.quantity is number && data.quantity >= 1;
+    }
+
+    function isValidWishlistItem(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.name is string && data.name.size() <= 200 &&
+             data.price is number && data.price >= 0;
+    }
+
+    function isValidFollowedStore(data) {
+      return data.storeId is string && data.storeId.size() <= 128 &&
+             data.storeName is string && data.storeName.size() <= 200;
+    }
+
+    function isValidConversation(data) {
+      return data.buyerId is string && data.buyerId.size() <= 128 &&
+             data.sellerId is string && data.sellerId.size() <= 128 &&
+             (data.buyerId == request.auth.uid || data.sellerId == request.auth.uid);
+    }
+
+    function isValidMessage(data) {
+      return data.senderId == request.auth.uid &&
+             data.text is string && data.text.size() <= 5000;
+    }
+
+    function isValidOrder(data) {
+      return data.buyerId == request.auth.uid &&
+             data.buyerName is string && data.buyerName.size() <= 100 &&
+             data.status is string && data.status.size() <= 50;
+    }
+
+    // --- COLLECTION RULES ---
+
+    // Categories (Public-facing, read-only dataset)
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Users (PII Isolation and fine-grained access)
+    match /users/{userId} {
+      allow get: if isSignedIn() && (
+        userId == request.auth.uid || 
+        resource.data.role == 'seller' ||
+        exists(/databases/$(database)/documents/conversations/$(request.auth.uid + '_' + userId)) ||
+        exists(/databases/$(database)/documents/conversations/$(userId + '_' + request.auth.uid))
+      );
+      allow list: if isSignedIn() && (
+        resource.data.uid == request.auth.uid ||
+        resource.data.role == 'seller' ||
+        exists(/databases/$(database)/documents/conversations/$(request.auth.uid + '_' + resource.data.uid)) ||
+        exists(/databases/$(database)/documents/conversations/$(resource.data.uid + '_' + request.auth.uid))
+      );
+      allow create: if isOwner(userId) && isValidUser(request.resource.data) && request.resource.data.uid == request.auth.uid;
+      allow update: if isOwner(userId) && isValidUser(request.resource.data);
+      allow delete: if isOwner(userId);
+    }
+
+    // Products (Public read, seller managed)
+    match /products/{productId} {
+      allow read: if true;
+      allow create: if isSignedIn() && isValidProduct(request.resource.data);
+      allow update: if isSignedIn() && resource.data.sellerId == request.auth.uid && isValidProduct(request.resource.data);
+      allow delete: if isSignedIn() && resource.data.sellerId == request.auth.uid;
+    }
+
+    // Carts subcollection
+    match /carts/{userId}/items/{productId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // Wishlists subcollection
+    match /wishlists/{userId}/items/{productId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // FollowedStores subcollection
+    match /followedStores/{userId}/stores/{storeId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // Conversations
+    match /conversations/{conversationId} {
+      allow read: if isSignedIn() && (resource.data.buyerId == request.auth.uid || resource.data.sellerId == request.auth.uid);
+      allow create: if isSignedIn() && isValidConversation(request.resource.data) && (request.resource.data.buyerId == request.auth.uid || request.resource.data.sellerId == request.auth.uid);
+      allow update: if isSignedIn() && (resource.data.buyerId == request.auth.uid || resource.data.sellerId == request.auth.uid) && isValidConversation(request.resource.data);
+      allow delete: if isSignedIn() && (resource.data.buyerId == request.auth.uid || resource.data.sellerId == request.auth.uid);
+    }
+
+    // Messages (Subcollection under Conversations)
+    match /conversations/{conversationId}/messages/{messageId} {
+      allow read: if isSignedIn() && (
+        get(/databases/$(database)/documents/conversations/$(conversationId)).data.buyerId == request.auth.uid || 
+        get(/databases/$(database)/documents/conversations/$(conversationId)).data.sellerId == request.auth.uid
+      );
+      allow create: if isSignedIn() && (
+        get(/databases/$(database)/documents/conversations/$(conversationId)).data.buyerId == request.auth.uid || 
+        get(/databases/$(database)/documents/conversations/$(conversationId)).data.sellerId == request.auth.uid
+      ) && isValidMessage(request.resource.data);
+      allow update, delete: if false;
+    }
+
+    // Orders
+    match /orders/{orderId} {
+      allow list: if isSignedIn();
+      allow get: if isSignedIn() && (
+        resource.data.buyerId == request.auth.uid || 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'seller'
+      );
+      allow create: if isSignedIn() && isValidOrder(request.resource.data);
+      allow update: if isSignedIn() && (
+        resource.data.buyerId == request.auth.uid || 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'seller'
+      );
+      allow delete: if false;
+    }
+  }
+}

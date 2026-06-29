@@ -1,0 +1,8 @@
+{
+  "name": "ShopEasy",
+  "description": "Local Malawian online marketplace website built with plain HTML, CSS, and JS",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

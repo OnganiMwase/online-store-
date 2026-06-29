@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Account - ShopEasy</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/pages/account.css">
+</head>
+<body>
+  <div class="app-container">
+    <div id="header-container"></div>
+
+    <main class="content">
+      <!-- Profile Header Block -->
+      <div class="profile-header-card" id="profile-card">
+        <div class="skeleton" style="width: 64px; height: 64px; border-radius: 50%;"></div>
+        <div class="skeleton" style="width: 120px; height: 18px; margin-top: 10px;"></div>
+        <div class="skeleton" style="width: 80px; height: 14px; margin-top: 6px;"></div>
+      </div>
+
+      <!-- Settings / Activity List options -->
+      <div class="account-menu">
+        <h3 class="menu-section-title">My Activity</h3>
+        
+        <a href="/orders.html" class="menu-item">
+          <span class="menu-item__icon">📦</span>
+          <span class="menu-item__text">My Orders</span>
+          <span class="menu-item__arrow">&rsaquo;</span>
+        </a>
+
+        <a href="/wishlist.html" class="menu-item">
+          <span class="menu-item__icon">❤️</span>
+          <span class="menu-item__text">My Saved Wishlist</span>
+          <span class="menu-item__arrow">&rsaquo;</span>
+        </a>
+
+        <a href="/followed-stores.html" class="menu-item">
+          <span class="menu-item__icon">🏪</span>
+          <span class="menu-item__text">Followed Local Stores</span>
+          <span class="menu-item__arrow">&rsaquo;</span>
+        </a>
+
+        <h3 class="menu-section-title" style="margin-top: 20px;">Sellers & Store Owners</h3>
+        
+        <!-- Onboarding or Dashboard Link (Dynamic) -->
+        <div id="seller-menu-option">
+          <div class="skeleton" style="width: 100%; height: 44px; border-radius: var(--radius);"></div>
+        </div>
+
+        <h3 class="menu-section-title" style="margin-top: 20px;">Support & Safety</h3>
+        
+        <a href="/settings.html" class="menu-item">
+          <span class="menu-item__icon">⚙️</span>
+          <span class="menu-item__text">Account Settings</span>
+          <span class="menu-item__arrow">&rsaquo;</span>
+        </a>
+
+        <button class="menu-item menu-item--logout" id="logout-btn">
+          <span class="menu-item__icon">🚪</span>
+          <span class="menu-item__text">Sign Out</span>
+        </button>
+      </div>
+    </main>
+
+    <div id="nav-container"></div>
+  </div>
+
+  <script type="module" src="/js/pages/account.js"></script>
+</body>
+</html>

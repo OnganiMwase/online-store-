@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>List New Item - ShopEasy</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/components.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header Bar -->
+    <header class="header">
+      <button class="header__btn" onclick="location.href='/seller/dashboard.html'" style="display: flex;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <h2 class="modal__title" id="form-page-title">List New Product</h2>
+      <div style="width: 22px;"></div> <!-- Spacer -->
+    </header>
+
+    <main class="content">
+      <form id="add-product-form">
+        <div class="card" style="padding: 14px; display: flex; flex-direction: column; gap: 12px;">
+          <div class="form-group">
+            <label class="form-label" for="prod-name">Product Name</label>
+            <input type="text" id="prod-name" class="form-input" placeholder="e.g. Samsung Galaxy S21" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="prod-price">Selling Price (MWK)</label>
+            <input type="number" id="prod-price" class="form-input" placeholder="e.g. 450000" min="1" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="prod-category">Product Category</label>
+            <select id="prod-category" class="form-select" required>
+              <option value="" disabled selected>Choose a category</option>
+              <option value="electronics">Electronics</option>
+              <option value="fashion">Fashion</option>
+              <option value="agriculture">Agriculture & Food</option>
+              <option value="home">Home & Living</option>
+              <option value="vehicles">Vehicles</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="prod-image">Product Image URL</label>
+            <input type="url" id="prod-image" class="form-input" placeholder="https://example.com/image.jpg" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="prod-desc">Detailed Description</label>
+            <textarea id="prod-desc" class="form-textarea" placeholder="Include item condition, warranty details, model, accessories included..." required></textarea>
+          </div>
+
+          <div class="form-group" style="flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; margin-top: 4px;">
+            <div>
+              <label class="form-label" style="margin-bottom: 2px;">Offer Free Delivery?</label>
+              <span class="form-hint" style="margin-top: 0;">Highlight your item with free transport/drop-off.</span>
+            </div>
+            <input type="checkbox" id="prod-delivery" style="width: 20px; height: 20px; accent-color: var(--primary);">
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn--primary btn--full" style="margin-top: 16px;" id="prod-submit-btn">Publish Listing</button>
+      </form>
+    </main>
+  </div>
+
+  <script type="module" src="/js/pages/seller-add-product.js"></script>
+</body>
+</html>

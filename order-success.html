@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Success - ShopEasy</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/components.css">
+</head>
+<body>
+  <div class="app-container" style="justify-content: center; align-items: center; text-align: center;">
+    <main class="content" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 24px;">
+      
+      <!-- Success Icon Animation -->
+      <div class="success-icon-wrap" style="width: 80px; height: 80px; border-radius: 50%; background-color: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; margin-bottom: 8px; box-shadow: var(--shadow-md);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg>
+      </div>
+
+      <h1 style="font-size: 1.5rem; font-weight: 800; color: var(--secondary); letter-spacing: -0.5px;">Zikomo! Order Placed</h1>
+      <p style="font-size: 0.9rem; color: var(--grey-600); max-width: 320px; line-height: 1.5;">Thank you for shopping with ShopEasy. Your order has been registered and sent to the local seller for immediate preparation.</p>
+
+      <!-- Order ID card -->
+      <div class="card" style="width: 100%; max-width: 340px; padding: 14px; background-color: var(--grey-100); border: 1.5px solid var(--grey-200); text-align: left; display: flex; flex-direction: column; gap: 6px;">
+        <div style="font-size: 0.75rem; color: var(--grey-600); text-transform: uppercase; font-weight: 700;">Order Identifier</div>
+        <div style="font-size: 0.95rem; font-weight: 700; color: var(--secondary);" id="order-success-id">...</div>
+        <div style="border-top: 1px dashed var(--grey-300); margin: 6px 0;"></div>
+        <div style="font-size: 0.75rem; color: var(--grey-600); text-transform: uppercase; font-weight: 700;">Payment Guidelines</div>
+        <div style="font-size: 0.8rem; color: var(--grey-800); line-height: 1.4;" id="payment-guidelines">Checking payment method details...</div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 340px; margin-top: 12px;">
+        <a href="/orders.html" class="btn btn--primary btn--full">My Orders List</a>
+        <a href="/index.html" class="btn btn--outline btn--full">Return to Home</a>
+      </div>
+      
+    </main>
+  </div>
+
+  <script type="module">
+    import { auth, db } from './js/firebase-config.js'
+    import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js'
+    import { getUrlParam } from './js/utils.js'
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const orderId = getUrlParam('id')
+      if (orderId) {
+        document.getElementById('order-success-id').textContent = orderId.toUpperCase()
+        
+        // Fetch order details to render payment method instructions
+        try {
+          const docSnap = await getDoc(doc(db, 'orders', orderId))
+          if (docSnap.exists()) {
+            const order = docSnap.data()
+            const guideEl = document.getElementById('payment-guidelines')
+            
+            if (order.paymentMethod === 'airtel-money') {
+              guideEl.innerHTML = `Please check your phone for a push PIN prompt from <strong>Airtel Money</strong> to finalize payment of <strong>MWK ${order.totalPrice?.toLocaleString()}</strong>.`
+            } else if (order.paymentMethod === 'tnm-mpamba') {
+              guideEl.innerHTML = `Please check your phone for a push PIN prompt from <strong>TNM Mpamba</strong> to authorize payment of <strong>MWK ${order.totalPrice?.toLocaleString()}</strong>.`
+            } else {
+              guideEl.innerHTML = `You have selected <strong>Cash on Delivery</strong>. Please prepare <strong>MWK ${order.totalPrice?.toLocaleString()}</strong> cash to hand over when you meet the seller for item collection.`
+            }
+          }
+        } catch (err) {
+          console.error(err)
+        }
+      }
+    })
+  </script>
+</body>
+</html>

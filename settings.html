@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Settings - ShopEasy</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/components.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header Bar -->
+    <header class="header">
+      <button class="header__btn" onclick="history.back()" style="display: flex;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <h2 class="modal__title">Settings</h2>
+      <div style="width: 22px;"></div> <!-- Spacer -->
+    </header>
+
+    <main class="content">
+      <form id="settings-form">
+        <section class="section">
+          <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--secondary); margin-bottom: 12px;">Edit Profile Details</h3>
+          
+          <div class="card" style="padding: 14px; display: flex; flex-direction: column; gap: 12px;">
+            <div class="form-group">
+              <label class="form-label" for="settings-name">Full Name</label>
+              <input type="text" id="settings-name" class="form-input" required autocomplete="name">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="settings-phone">Phone Number</label>
+              <input type="tel" id="settings-phone" class="form-input" required autocomplete="tel">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="settings-city">Location / City</label>
+              <select id="settings-city" class="form-select" required autocomplete="address-level2">
+                <option value="Lilongwe">Lilongwe</option>
+                <option value="Blantyre">Blantyre</option>
+                <option value="Mzuzu">Mzuzu</option>
+                <option value="Zomba">Zomba</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="settings-avatar">Profile Avatar URL</label>
+              <input type="url" id="settings-avatar" class="form-input" placeholder="https://example.com/avatar.png">
+            </div>
+          </div>
+        </section>
+
+        <button type="submit" class="btn btn--primary btn--full" style="margin-top: 16px;" id="save-settings-btn">Save Changes</button>
+      </form>
+    </main>
+
+    <div id="nav-container"></div>
+  </div>
+
+  <script type="module">
+    import { auth, db } from './js/firebase-config.js'
+    import { doc, getDoc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js'
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js'
+    import { showToast, showLoading, hideLoading, redirect } from './js/utils.js'
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('settings-form')
+      const saveBtn = document.getElementById('save-settings-btn')
+
+      onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+          redirect('/login.html')
+          return
+        }
+
+        try {
+          const docSnap = await getDoc(doc(db, 'users', user.uid))
+          if (docSnap.exists()) {
+            const profile = docSnap.data()
+            document.getElementById('settings-name').value = profile.name || ''
+            document.getElementById('settings-phone').value = profile.phone || ''
+            document.getElementById('settings-city').value = profile.city || 'Lilongwe'
+            document.getElementById('settings-avatar').value = profile.avatar || ''
+          }
+        } catch (err) {
+          console.error(err)
+        }
+      })
+
+      if (form) {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault()
+          const user = auth.currentUser
+          if (!user) return
+
+          showLoading(saveBtn, 'Saving...')
+          try {
+            await updateDoc(doc(db, 'users', user.uid), {
+              name: document.getElementById('settings-name').value.trim(),
+              phone: document.getElementById('settings-phone').value.trim(),
+              city: document.getElementById('settings-city').value,
+              avatar: document.getElementById('settings-avatar').value.trim(),
+              updatedAt: serverTimestamp()
+            })
+            hideLoading(saveBtn)
+            showToast('Settings saved successfully!', 'success')
+            setTimeout(() => redirect('/account.html'), 1000)
+          } catch (err) {
+            hideLoading(saveBtn)
+            showToast('Failed to save settings.', 'danger')
+          }
+        })
+      }
+    })
+  </script>
+</body>
+</html>

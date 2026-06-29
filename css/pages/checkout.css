@@ -1,0 +1,100 @@
+/* Checkout page styles */
+
+.checkout-section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--secondary);
+  border-left: 3px solid var(--primary);
+  padding-left: 8px;
+}
+
+.payment-methods-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.payment-option {
+  position: relative;
+  cursor: pointer;
+}
+
+.payment-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.payment-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 6px;
+  border: 1.5px solid var(--grey-200);
+  border-radius: var(--radius);
+  background-color: var(--grey-100);
+  transition: all var(--transition);
+  text-align: center;
+  height: 100%;
+}
+
+.payment-logo {
+  font-size: 1.3rem;
+}
+
+.payment-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--grey-800);
+  line-height: 1.2;
+}
+
+.payment-option input[type="radio"]:checked + .payment-card {
+  border-color: var(--primary);
+  background-color: var(--primary-light);
+  box-shadow: 0 0 0 2px var(--primary-light);
+}
+
+.payment-option input[type="radio"]:checked + .payment-card .payment-title {
+  color: var(--primary-dark);
+}
+
+/* Order Breakdown row details */
+.breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--grey-800);
+  padding: 6px 0;
+  border-bottom: 1px solid var(--grey-200);
+}
+
+.breakdown-row:last-child {
+  border-bottom: none;
+}
+
+.breakdown-item-name {
+  font-weight: 600;
+  flex: 1;
+}
+
+.breakdown-item-qty {
+  color: var(--grey-600);
+  margin-right: 12px;
+}
+
+.breakdown-item-price {
+  font-weight: 700;
+  color: var(--secondary);
+}
+
+/* Summary Panel Checkout */
+.checkout-summary-panel {
+  margin-top: 24px;
+  background-color: var(--grey-100);
+  border: 1px solid var(--grey-200);
+  border-radius: var(--radius);
+  padding: 16px;
+}

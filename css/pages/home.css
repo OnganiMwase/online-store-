@@ -1,0 +1,115 @@
+/* Home Page Styles */
+
+.hero-banner {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: var(--white);
+  padding: 24px 16px;
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-banner::before {
+  content: "";
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 120px;
+  height: 120px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+}
+
+.hero-banner__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+
+.hero-banner__subtitle {
+  font-size: 0.85rem;
+  opacity: 0.9;
+  font-weight: 400;
+  margin-bottom: 8px;
+}
+
+.hero-banner__search-form {
+  display: flex;
+  background-color: var(--white);
+  border-radius: var(--radius);
+  padding: 4px;
+  box-shadow: var(--shadow);
+}
+
+.hero-banner__search-input {
+  flex: 1;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  color: var(--secondary);
+  background: transparent;
+}
+
+.hero-banner__search-input::placeholder {
+  color: var(--grey-600);
+}
+
+.hero-banner__search-btn {
+  background-color: var(--primary);
+  color: var(--white);
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color var(--transition);
+}
+
+.hero-banner__search-btn:hover {
+  background-color: var(--primary-dark);
+}
+
+/* Categories List */
+.category-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  width: 72px;
+  cursor: pointer;
+}
+
+.category-item__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: var(--primary-light);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  box-shadow: var(--shadow);
+  transition: transform var(--transition);
+}
+
+.category-item:active .category-item__icon {
+  transform: scale(0.92);
+}
+
+.category-item__name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--grey-800);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}

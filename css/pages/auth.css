@@ -1,0 +1,125 @@
+/* Auth Pages Styles */
+
+.auth-header {
+  text-align: center;
+  padding: 32px 16px 16px;
+  background-color: var(--grey-100);
+  border-bottom-left-radius: 24px;
+  border-bottom-right-radius: 24px;
+}
+
+.auth-header__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: var(--primary);
+  margin-bottom: 16px;
+}
+
+.auth-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--secondary);
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+}
+
+.auth-subtitle {
+  font-size: 0.85rem;
+  color: var(--grey-600);
+  max-width: 280px;
+  margin: 0 auto;
+  line-height: 1.4;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 20px 0;
+  color: var(--grey-400);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.auth-divider::before, .auth-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--grey-200);
+}
+
+.auth-divider span {
+  padding: 0 10px;
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 0.85rem;
+  color: var(--grey-600);
+}
+
+.auth-link {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+/* Custom Role Selector Cards */
+.role-selector {
+  display: flex;
+  gap: 12px;
+}
+
+.role-option {
+  flex: 1;
+  position: relative;
+  cursor: pointer;
+}
+
+.role-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.role-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  border: 1.5px solid var(--grey-200);
+  border-radius: var(--radius);
+  background-color: var(--grey-100);
+  transition: all var(--transition);
+  text-align: center;
+}
+
+.role-icon {
+  font-size: 1.5rem;
+}
+
+.role-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--grey-800);
+}
+
+.role-option input[type="radio"]:checked + .role-card {
+  border-color: var(--primary);
+  background-color: var(--primary-light);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.role-option input[type="radio"]:checked + .role-card .role-title {
+  color: var(--primary-dark);
+}

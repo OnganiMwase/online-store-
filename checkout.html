@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - ShopEasy</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/pages/checkout.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Back Header Bar -->
+    <header class="header">
+      <button class="header__btn" onclick="history.back()" style="display: flex;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <h2 class="modal__title">Checkout</h2>
+      <div style="width: 22px;"></div> <!-- Spacer -->
+    </header>
+
+    <main class="content">
+      <form id="checkout-form">
+        <!-- Delivery Details Section -->
+        <section class="section">
+          <h3 class="checkout-section-title">Delivery Information</h3>
+          <div class="card" style="padding: 12px; margin-top: 8px;">
+            <div class="form-group">
+              <label class="form-label" for="delivery-name">Recipient Name</label>
+              <input type="text" id="delivery-name" class="form-input" placeholder="e.g. John Phiri" required autocomplete="name">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="delivery-phone">Contact Phone Number</label>
+              <input type="tel" id="delivery-phone" class="form-input" placeholder="e.g. +265 888 12 34 56" required autocomplete="tel">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="delivery-address">Street / Local Address Details</label>
+              <input type="text" id="delivery-address" class="form-input" placeholder="e.g. Area 18, House 123" required autocomplete="street-address">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="delivery-city">City / Location</label>
+              <select id="delivery-city" class="form-select" required autocomplete="address-level2">
+                <option value="Lilongwe">Lilongwe</option>
+                <option value="Blantyre">Blantyre</option>
+                <option value="Mzuzu">Mzuzu</option>
+                <option value="Zomba">Zomba</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- Payment Methods Section -->
+        <section class="section">
+          <h3 class="checkout-section-title">Payment Method</h3>
+          <div class="payment-methods-grid" style="margin-top: 8px;">
+            <label class="payment-option">
+              <input type="radio" name="paymentMethod" value="airtel-money" checked required>
+              <span class="payment-card">
+                <span class="payment-logo">🔴</span>
+                <span class="payment-title">Airtel Money</span>
+              </span>
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="paymentMethod" value="tnm-mpamba" required>
+              <span class="payment-card">
+                <span class="payment-logo">🟢</span>
+                <span class="payment-title">TNM Mpamba</span>
+              </span>
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="paymentMethod" value="cod" required>
+              <span class="payment-card">
+                <span class="payment-logo">🤝</span>
+                <span class="payment-title">Cash on Delivery</span>
+              </span>
+            </label>
+          </div>
+        </section>
+
+        <!-- Dynamic Mobile Money Phone Number Input (Hidden by default, shown if mobile money selected) -->
+        <div class="form-group" id="mobile-money-phone-group" style="margin-top: -8px; margin-bottom: 24px;">
+          <label class="form-label" for="momo-phone">Airtel / Mpamba Registered Number</label>
+          <input type="tel" id="momo-phone" class="form-input" placeholder="e.g. +265 888 123 456">
+          <span class="form-hint">A push payment prompt will be sent to this number.</span>
+        </div>
+
+        <!-- Order Items Breakdown -->
+        <section class="section">
+          <h3 class="checkout-section-title">Order Summary</h3>
+          <div class="card" style="padding: 12px; margin-top: 8px;" id="order-items-breakdown">
+            <!-- Dynamically populated rows -->
+          </div>
+        </section>
+
+        <!-- Final Pricing and CTA Panel -->
+        <div class="checkout-summary-panel">
+          <div class="summary-row">
+            <span>Items Subtotal</span>
+            <span id="subtotal-val">MWK 0</span>
+          </div>
+          <div class="summary-row">
+            <span>Delivery Fee</span>
+            <span style="color: var(--success); font-weight: 600;">FREE</span>
+          </div>
+          <div class="summary-divider"></div>
+          <div class="summary-row summary-row--total">
+            <span>Total Payable Amount</span>
+            <span id="total-val" style="color: var(--primary); font-size: 1.2rem; font-weight: 800;">MWK 0</span>
+          </div>
+
+          <button type="submit" class="btn btn--primary btn--full" style="margin-top: 16px;" id="pay-place-btn">
+            Place Order
+          </button>
+        </div>
+      </form>
+    </main>
+  </div>
+
+  <script type="module" src="/js/pages/checkout.js"></script>
+</body>
+</html>

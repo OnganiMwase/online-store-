@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seller Dashboard - ShopEasy</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <style>
+    /* Seller dashboard grid analytics */
+    .dashboard-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .metric-card {
+      background-color: var(--white);
+      border: 1.5px solid var(--grey-200);
+      border-radius: 8px;
+      padding: 10px 8px;
+      text-align: center;
+    }
+    .metric-val {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-top: 4px;
+    }
+    .metric-lbl {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--grey-600);
+    }
+    /* Dashboard tab switching style */
+    .tab-bar {
+      display: flex;
+      border-bottom: 2px solid var(--grey-200);
+      margin-bottom: 16px;
+    }
+    .tab-btn {
+      flex: 1;
+      text-align: center;
+      padding: 10px 4px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--grey-600);
+      cursor: pointer;
+      border-bottom: 3.5px solid transparent;
+      margin-bottom: -2.5px;
+    }
+    .tab-btn--active {
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+    .dashboard-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    /* Simple product row */
+    .seller-prod-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px;
+      background-color: var(--white);
+      border: 1.5px solid var(--grey-200);
+      border-radius: 8px;
+    }
+    .seller-prod-row img {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+    }
+    .seller-prod-row__info {
+      flex: 1;
+    }
+    .seller-prod-row__name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--secondary);
+    }
+    .seller-prod-row__price {
+      font-size: 0.8rem;
+      color: var(--primary);
+      font-weight: 700;
+    }
+    .seller-prod-row__actions {
+      display: flex;
+      gap: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header Bar -->
+    <header class="header">
+      <button class="header__btn" onclick="location.href='/account.html'" style="display: flex;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <h2 class="modal__title" id="dashboard-title">My Store Dashboard</h2>
+      <button class="header__btn" onclick="location.href='/seller/add-product.html'" style="display: flex;" id="quick-add-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+      </button>
+    </header>
+
+    <main class="content" style="padding-bottom: 24px;">
+      <!-- Dashboard Analytics metrics -->
+      <div class="dashboard-metrics">
+        <div class="metric-card">
+          <div class="metric-lbl">Total Sales</div>
+          <div class="metric-val" id="sales-metric">MWK 0</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-lbl">My Listings</div>
+          <div class="metric-val" id="listings-metric">0</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-lbl">New Orders</div>
+          <div class="metric-val" id="orders-metric">0</div>
+        </div>
+      </div>
+
+      <!-- Tab Selectors for Products or Orders view -->
+      <div class="tab-bar">
+        <div class="tab-btn tab-btn--active" id="products-tab-btn">My Products</div>
+        <div class="tab-btn" id="orders-tab-btn">Incoming Orders</div>
+      </div>
+
+      <!-- Dynamic Items Lists -->
+      <div class="dashboard-list" id="dashboard-items-container">
+        <!-- Skeleton structures -->
+        <div class="skeleton" style="width: 100%; height: 72px; border-radius: var(--radius);"></div>
+        <div class="skeleton" style="width: 100%; height: 72px; border-radius: var(--radius);"></div>
+      </div>
+    </main>
+
+    <div id="nav-container"></div>
+  </div>
+
+  <script type="module" src="/js/pages/seller-dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+/* Shop page custom styles */
+
+.shop-filter-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  align-items: center;
+}
+
+.shop-search {
+  flex: 1.5;
+  position: relative;
+}
+
+.shop-search input {
+  width: 100%;
+  padding: 10px 12px 10px 36px;
+  background-color: var(--grey-100);
+  border: 1.5px solid var(--grey-200);
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  transition: all var(--transition);
+}
+
+.shop-search input:focus {
+  background-color: var(--white);
+  border-color: var(--primary);
+}
+
+.shop-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--grey-600);
+}
+
+.shop-sort {
+  flex: 1;
+}
+
+.sort-select-input {
+  width: 100%;
+  padding: 10px 8px;
+  background-color: var(--grey-100);
+  border: 1.5px solid var(--grey-200);
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  color: var(--secondary);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* Category Filter Tabs (horizontal slider) */
+.categories-filter {
+  padding: 4px 0;
+  border-bottom: 1px solid var(--grey-200);
+  margin-bottom: 8px;
+}
+
+.filter-tab {
+  background-color: var(--grey-100);
+  color: var(--grey-800);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition);
+  border: 1.5px solid transparent;
+}
+
+.filter-tab--active {
+  background-color: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--primary);
+}

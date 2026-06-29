@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop - ShopEasy</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/pages/shop.css">
+</head>
+<body>
+  <div class="app-container">
+    <div id="header-container"></div>
+
+    <main class="content">
+      <!-- Filter and Options Bar -->
+      <div class="shop-filter-bar">
+        <div class="shop-search">
+          <input type="text" id="shop-search-input" placeholder="Search in Shop...">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shop-search-icon"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </div>
+        
+        <div class="shop-sort">
+          <select id="sort-select" class="sort-select-input">
+            <option value="newest">Latest Listings</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Categories Filter Slider -->
+      <div class="categories-filter horizontal-scroll" id="shop-categories">
+        <button class="filter-tab filter-tab--active" data-id="all">All Items</button>
+        <!-- Categories tabs injected here -->
+      </div>
+
+      <!-- Product Listings Grid -->
+      <div class="grid-2" id="shop-products-grid" style="margin-top: 16px;">
+        <!-- Injected product cards -->
+      </div>
+    </main>
+
+    <div id="nav-container"></div>
+  </div>
+
+  <script type="module" src="/js/pages/shop.js"></script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account - ShopEasy</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/pages/auth.css">
+</head>
+<body>
+  <div class="app-container">
+    <div class="auth-header">
+      <a href="/index.html" class="auth-header__logo">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-store"><path d="m2 7 4.41-3.67A2 2 0 0 1 7.73 3h8.54a2 2 0 0 1 1.32.53L22 7"/><path d="M4 12V7"/><path d="M12 12V7"/><path d="M20 12V7"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M14 12H10"/></svg>
+        <span>ShopEasy</span>
+      </a>
+      <h1 class="auth-title">Get Started</h1>
+      <p class="auth-subtitle">Join thousands of Malawian buyers and sellers</p>
+    </div>
+
+    <main class="content">
+      <form id="register-form">
+        <div class="form-group">
+          <label class="form-label" for="register-name">Full Name</label>
+          <input type="text" id="register-name" class="form-input" placeholder="e.g. John Phiri" required autocomplete="name">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="register-email">Email Address</label>
+          <input type="email" id="register-email" class="form-input" placeholder="e.g. name@domain.com" required autocomplete="email">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="register-phone">Phone Number (MWK)</label>
+          <input type="tel" id="register-phone" class="form-input" placeholder="e.g. +265 888 12 34 56" required autocomplete="tel">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="register-city">City / Location</label>
+          <select id="register-city" class="form-select" required autocomplete="address-level2">
+            <option value="" disabled selected>Select your city</option>
+            <option value="Lilongwe">Lilongwe</option>
+            <option value="Blantyre">Blantyre</option>
+            <option value="Mzuzu">Mzuzu</option>
+            <option value="Zomba">Zomba</option>
+            <option value="Kasungu">Kasungu</option>
+            <option value="Mangochi">Mangochi</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="register-role">I want to</label>
+          <div class="role-selector">
+            <label class="role-option">
+              <input type="radio" name="role" value="buyer" checked required>
+              <span class="role-card">
+                <span class="role-icon">🛍️</span>
+                <span class="role-title">Buy Items</span>
+              </span>
+            </label>
+            <label class="role-option">
+              <input type="radio" name="role" value="seller" required>
+              <span class="role-card">
+                <span class="role-icon">🏪</span>
+                <span class="role-title">Sell Items</span>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="register-password">Create Password</label>
+          <input type="password" id="register-password" class="form-input" placeholder="Minimum 6 characters" required minlength="6" autocomplete="new-password">
+        </div>
+
+        <button type="submit" class="btn btn--primary btn--full" id="register-submit-btn">Create Account</button>
+      </form>
+
+      <div class="auth-footer">
+        <p>Already have an account? <a href="/login.html" class="auth-link">Sign In</a></p>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="/js/pages/register.js"></script>
+</body>
+</html>

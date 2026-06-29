@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Category - ShopEasy</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/pages/shop.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Category Back/Header Bar -->
+    <header class="header">
+      <button class="header__btn" onclick="history.back()" style="display: flex;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <h2 class="modal__title" id="category-page-title">Category Products</h2>
+      <div style="width: 22px;"></div> <!-- Spacer -->
+    </header>
+
+    <main class="content">
+      <!-- Sort Option Bar inside Category -->
+      <div class="shop-filter-bar">
+        <div style="font-size: 0.85rem; font-weight: 600; color: var(--grey-600);" id="items-count">0 items found</div>
+        <div class="shop-sort" style="max-width: 150px;">
+          <select id="category-sort" class="sort-select-input">
+            <option value="newest">Latest Listings</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Category listings grid -->
+      <div class="grid-2" id="category-products-grid">
+        <!-- Injected product cards -->
+      </div>
+    </main>
+
+    <div id="nav-container"></div>
+  </div>
+
+  <script type="module" src="/js/pages/category.js"></script>
+</body>
+</html>
