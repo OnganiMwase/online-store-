@@ -155,7 +155,38 @@ service cloud.firestore {
         resource.data.buyerId == request.auth.uid || 
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'seller'
       );
+      allow delete: if isSignedIn() && resource.data.buyerId == request.auth.uid;
+    }
+
+    // Disputes
+    match /disputes/{orderId} {
+      allow read: if isSignedIn() && (
+        resource.data.buyerId == request.auth.uid || 
+        resource.data.sellerId == request.auth.uid
+      );
+      allow create: if isSignedIn() && request.resource.data.buyerId == request.auth.uid;
+      allow update: if isSignedIn() && (
+        resource.data.buyerId == request.auth.uid || 
+        resource.data.sellerId == request.auth.uid
+      );
       allow delete: if false;
+    }
+
+    // Notifications
+    match /notifications/{notificationId} {
+      allow read: if isSignedIn() && (
+        resource.data.recipientId == request.auth.uid || 
+        resource.data.recipientId == 'admin'
+      );
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (
+        resource.data.recipientId == request.auth.uid || 
+        resource.data.recipientId == 'admin'
+      );
+      allow delete: if isSignedIn() && (
+        resource.data.recipientId == request.auth.uid || 
+        resource.data.recipientId == 'admin'
+      );
     }
   }
 }

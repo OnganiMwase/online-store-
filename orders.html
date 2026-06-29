@@ -20,11 +20,27 @@
       <div style="width: 22px;"></div> <!-- Spacer -->
     </header>
 
+    <!-- Tabs Container -->
+    <div class="orders-tabs" id="orders-tabs">
+      <button class="orders-tab orders-tab--active" data-status="all">All</button>
+      <button class="orders-tab" data-status="pending_payment">To Pay</button>
+      <button class="orders-tab" data-status="processing">Processing</button>
+      <button class="orders-tab" data-status="ready">Ready</button>
+      <button class="orders-tab" data-status="completed">Completed</button>
+      <button class="orders-tab" data-status="cancelled">Cancelled</button>
+      <button class="orders-tab" data-status="dispute_open">Returns</button>
+    </div>
+
     <main class="content">
       <div class="orders-list-container" id="orders-list">
         <!-- Skeleton dynamic loader -->
-        <div class="skeleton" style="width: 100%; height: 110px; border-radius: var(--radius); margin-bottom: 12px;"></div>
-        <div class="skeleton" style="width: 100%; height: 110px; border-radius: var(--radius); margin-bottom: 12px;"></div>
+        <div class="skeleton" style="width: 100%; height: 120px; border-radius: var(--radius); margin-bottom: 12px;"></div>
+        <div class="skeleton" style="width: 100%; height: 120px; border-radius: var(--radius); margin-bottom: 12px;"></div>
+      </div>
+
+      <!-- Load More Container -->
+      <div class="load-more-container hidden" id="load-more-container">
+        <button class="btn btn--outline" id="load-more-btn">Load More</button>
       </div>
     </main>
 

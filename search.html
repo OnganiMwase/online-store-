@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Search Results - ShopEasy</title>
+  <title>Search - ShopEasy</title>
   <link rel="stylesheet" href="/css/main.css">
   <link rel="stylesheet" href="/css/layout.css">
   <link rel="stylesheet" href="/css/components.css">
@@ -11,26 +11,84 @@
 </head>
 <body>
   <div class="app-container">
-    <!-- Back Header Bar -->
-    <header class="header">
-      <button class="header__btn" onclick="history.back()" style="display: flex;">
+    <!-- Search Top Bar -->
+    <header class="search-topbar">
+      <button class="header__btn" onclick="location.href='index.html'" style="display: flex; background: none; border: none; cursor: pointer; color: var(--secondary);">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg>
       </button>
-      <div class="shop-search" style="flex: 1; margin: 0 10px;">
-        <input type="text" id="search-results-input" placeholder="Search products...">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shop-search-icon"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <div class="search-input-wrapper">
+        <input type="text" id="searchInput" placeholder="Search products..." autocomplete="off">
+        <button id="clearSearch" class="search-clear-btn" style="display: none;" aria-label="Clear search">×</button>
       </div>
     </header>
 
-    <main class="content">
-      <div style="font-size: 0.85rem; font-weight: 600; color: var(--grey-600); margin-bottom: 16px;" id="search-status">Searching for items...</div>
+    <main class="content" style="padding-bottom: 80px;">
+      <!-- INITIAL STATE: shown when there's no query -->
+      <div id="initialState" class="hidden">
+        <!-- SEARCH HISTORY -->
+        <section class="search-history-section" id="searchHistorySection">
+          <div class="history-header">
+            <h3>Recent searches</h3>
+            <button id="clearAllHistory" class="clear-all-history-btn">Clear all</button>
+          </div>
+          <div class="history-list" id="searchHistoryList">
+            <!-- Dynamically populated -->
+          </div>
+        </section>
 
-      <!-- Search results product grid -->
-      <div class="grid-2" id="search-products-grid">
-        <!-- Injected cards -->
+        <!-- BROWSE BY CATEGORY -->
+        <section class="browse-category-section" id="browseCategorySection">
+          <h3>Or browse by category</h3>
+          <div class="category-chips-grid" id="categoryChipsGrid">
+            <!-- Dynamically populated from firestore where productCount > 0 -->
+          </div>
+        </section>
+      </div>
+
+      <!-- RESULTS STATE: shown when there's a query -->
+      <div id="resultsState" class="hidden">
+        <!-- Result count or empty search label -->
+        <div class="search-results-meta">
+          <div class="result-count-text" id="resultCount">0 results</div>
+        </div>
+
+        <!-- FILTER CHIPS (horizontal scroll) -->
+        <div class="search-chips-bar" id="filterChipsContainer">
+          <button class="search-chip active" data-filter="all">All</button>
+          <button class="search-chip" data-filter="maxPrice" data-value="10000">Under MWK 10,000</button>
+          <button class="search-chip" data-filter="maxPrice" data-value="50000">Under MWK 50,000</button>
+          <button class="search-chip" data-filter="city" data-value="Lilongwe">Lilongwe</button>
+          <button class="search-chip" data-filter="city" data-value="Blantyre">Blantyre</button>
+          <button class="search-chip" data-filter="city" data-value="Mzuzu">Mzuzu</button>
+          <button class="search-chip" data-filter="freeDelivery" data-value="true">Free Delivery</button>
+        </div>
+
+        <!-- SORT row -->
+        <div class="search-sort-row">
+          <span class="search-sort-label">Sort by</span>
+          <select id="sortBySelect" class="search-sort-select">
+            <option value="newest">Newest</option>
+            <option value="popular">Most Sold</option>
+            <option value="price-asc">Price ↑</option>
+            <option value="price-desc">Price ↓</option>
+          </select>
+        </div>
+
+        <!-- Results 2-column grid -->
+        <div class="grid-2" id="resultsGrid" style="padding: 0 16px 16px 16px;">
+          <!-- Product cards are injected here -->
+        </div>
+
+        <!-- Load More button -->
+        <div style="padding: 0 16px 16px 16px;">
+          <button class="btn btn--outline btn--full" id="loadMoreBtn" style="display: none;">
+            Load More
+          </button>
+        </div>
       </div>
     </main>
 
+    <!-- BOTTOM NAV -->
     <div id="nav-container"></div>
   </div>
 

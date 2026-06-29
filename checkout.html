@@ -13,110 +13,204 @@
   <div class="app-container">
     <!-- Back Header Bar -->
     <header class="header">
-      <button class="header__btn" onclick="history.back()" style="display: flex;">
+      <button class="header__btn" id="checkout-back-btn" style="display: flex; background: none; cursor: pointer; color: var(--secondary);">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg>
       </button>
-      <h2 class="modal__title">Checkout</h2>
+      <h2 class="modal__title" style="letter-spacing: -0.5px;" id="checkout-page-title">Checkout</h2>
       <div style="width: 22px;"></div> <!-- Spacer -->
     </header>
 
-    <main class="content">
-      <form id="checkout-form">
-        <!-- Delivery Details Section -->
-        <section class="section">
-          <h3 class="checkout-section-title">Delivery Information</h3>
-          <div class="card" style="padding: 12px; margin-top: 8px;">
+    <main class="content" style="padding-bottom: 24px;">
+      <!-- Steps Indicator -->
+      <div class="steps-indicator-container">
+        <div class="step-indicator step-indicator--active" id="step-delivery-indicator">
+          <span class="step-number">1</span>
+          <span class="step-label">Delivery</span>
+        </div>
+        <div class="step-line" id="step-line-divider"></div>
+        <div class="step-indicator" id="step-payment-indicator">
+          <span class="step-number">2</span>
+          <span class="step-label">Review & Pay</span>
+        </div>
+      </div>
+
+      <!-- STEP 1 — Delivery Details Form -->
+      <div id="checkout-step-1" class="checkout-step-panel">
+        <div class="checkout-section-header" style="margin-bottom: 16px;">
+          <h3 class="checkout-section-title">Delivery Details</h3>
+          <p style="font-size: 0.8rem; color: var(--grey-600); margin-top: 4px;">How would you like to receive your order?</p>
+        </div>
+
+        <!-- Delivery Type Radio Switchers -->
+        <div class="delivery-switchers">
+          <label class="delivery-switcher-card">
+            <input type="radio" name="deliveryType" value="home" checked>
+            <span class="switcher-content">
+              <span class="switcher-icon">🏠</span>
+              <span class="switcher-title">Home Delivery</span>
+            </span>
+          </label>
+          <label class="delivery-switcher-card">
+            <input type="radio" name="deliveryType" value="pickup">
+            <span class="switcher-content">
+              <span class="switcher-icon">🚶</span>
+              <span class="switcher-title">I'll pick up</span>
+            </span>
+          </label>
+        </div>
+
+        <form id="delivery-details-form" novalidate style="margin-top: 16px;">
+          <!-- Home Delivery fields -->
+          <div id="home-delivery-fields" class="card form-container-card">
             <div class="form-group">
-              <label class="form-label" for="delivery-name">Recipient Name</label>
-              <input type="text" id="delivery-name" class="form-input" placeholder="e.g. John Phiri" required autocomplete="name">
+              <label class="form-label" for="home-fullname">Full Name <span class="required">*</span></label>
+              <input type="text" id="home-fullname" class="form-input" placeholder="e.g. Kondwani Phiri" autocomplete="name">
+              <span class="inline-error" id="err-home-fullname"></span>
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="delivery-phone">Contact Phone Number</label>
-              <input type="tel" id="delivery-phone" class="form-input" placeholder="e.g. +265 888 12 34 56" required autocomplete="tel">
+              <label class="form-label" for="home-phone">Phone Number <span class="required">*</span></label>
+              <input type="tel" id="home-phone" class="form-input" placeholder="e.g. +265 888 12 34 56">
+              <span class="form-hint">Format: +265 followed by 9 digits</span>
+              <span class="inline-error" id="err-home-phone"></span>
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="delivery-address">Street / Local Address Details</label>
-              <input type="text" id="delivery-address" class="form-input" placeholder="e.g. Area 18, House 123" required autocomplete="street-address">
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="delivery-city">City / Location</label>
-              <select id="delivery-city" class="form-select" required autocomplete="address-level2">
+              <label class="form-label" for="home-city">City <span class="required">*</span></label>
+              <select id="home-city" class="form-select">
+                <option value="">Select a city</option>
                 <option value="Lilongwe">Lilongwe</option>
                 <option value="Blantyre">Blantyre</option>
                 <option value="Mzuzu">Mzuzu</option>
                 <option value="Zomba">Zomba</option>
+                <option value="Kasungu">Kasungu</option>
+                <option value="Mangochi">Mangochi</option>
+                <option value="Salima">Salima</option>
+                <option value="Karonga">Karonga</option>
+                <option value="Nkhotakota">Nkhotakota</option>
+                <option value="Dedza">Dedza</option>
+                <option value="Liwonde">Liwonde</option>
               </select>
+              <span class="inline-error" id="err-home-city"></span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="home-area">Area / Neighbourhood <span class="required">*</span></label>
+              <input type="text" id="home-area" class="form-input" placeholder="e.g. Area 18, Namiwawa, Chinyama">
+              <span class="inline-error" id="err-home-area"></span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="home-landmark">Landmark <span class="optional">(optional)</span></label>
+              <input type="text" id="home-landmark" class="form-input" placeholder="e.g. Near Area 18 filling station, behind clinic">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="home-note">Note to Seller <span class="optional">(optional)</span></label>
+              <textarea id="home-note" class="form-input form-textarea" placeholder="e.g. Please call before arriving or deliver after 2 PM" rows="2"></textarea>
             </div>
           </div>
-        </section>
 
-        <!-- Payment Methods Section -->
-        <section class="section">
-          <h3 class="checkout-section-title">Payment Method</h3>
-          <div class="payment-methods-grid" style="margin-top: 8px;">
-            <label class="payment-option">
-              <input type="radio" name="paymentMethod" value="airtel-money" checked required>
-              <span class="payment-card">
-                <span class="payment-logo">🔴</span>
-                <span class="payment-title">Airtel Money</span>
-              </span>
-            </label>
-            <label class="payment-option">
-              <input type="radio" name="paymentMethod" value="tnm-mpamba" required>
-              <span class="payment-card">
-                <span class="payment-logo">🟢</span>
-                <span class="payment-title">TNM Mpamba</span>
-              </span>
-            </label>
-            <label class="payment-option">
-              <input type="radio" name="paymentMethod" value="cod" required>
-              <span class="payment-card">
-                <span class="payment-logo">🤝</span>
-                <span class="payment-title">Cash on Delivery</span>
-              </span>
+          <!-- Pickup fields (Hidden by default) -->
+          <div id="pickup-fields" class="card form-container-card" style="display: none;">
+            <div class="form-group">
+              <label class="form-label" for="pickup-fullname">Full Name <span class="required">*</span></label>
+              <input type="text" id="pickup-fullname" class="form-input" placeholder="e.g. Kondwani Phiri">
+              <span class="inline-error" id="err-pickup-fullname"></span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="pickup-phone">Phone Number <span class="required">*</span></label>
+              <input type="tel" id="pickup-phone" class="form-input" placeholder="e.g. +265 888 12 34 56">
+              <span class="form-hint">Format: +265 followed by 9 digits</span>
+              <span class="inline-error" id="err-pickup-phone"></span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="pickup-note">Note to Seller <span class="optional">(optional)</span></label>
+              <textarea id="pickup-note" class="form-input form-textarea" placeholder="e.g. I will pick up on Saturday morning" rows="2"></textarea>
+            </div>
+          </div>
+
+          <!-- Save address option -->
+          <div class="address-save-wrapper" style="margin-top: 14px; display: flex; align-items: center; gap: 8px; padding: 2px;">
+            <input type="checkbox" id="save-address-checkbox" class="custom-checkbox" checked>
+            <label for="save-address-checkbox" style="font-size: 0.85rem; font-weight: 600; color: var(--grey-800); cursor: pointer; user-select: none;">
+              💾 Save this address as default
             </label>
           </div>
-        </section>
 
-        <!-- Dynamic Mobile Money Phone Number Input (Hidden by default, shown if mobile money selected) -->
-        <div class="form-group" id="mobile-money-phone-group" style="margin-top: -8px; margin-bottom: 24px;">
-          <label class="form-label" for="momo-phone">Airtel / Mpamba Registered Number</label>
-          <input type="tel" id="momo-phone" class="form-input" placeholder="e.g. +265 888 123 456">
-          <span class="form-hint">A push payment prompt will be sent to this number.</span>
+          <button type="submit" class="btn btn--primary btn--full" style="margin-top: 24px; font-weight: 700; padding: 14px;" id="continue-step-1-btn">
+            Continue &rarr;
+          </button>
+        </form>
+      </div>
+
+      <!-- STEP 2 — Review & Pay (Initially hidden) -->
+      <div id="checkout-step-2" class="checkout-step-panel" style="display: none;">
+        
+        <!-- Delivery Summary Recap -->
+        <div class="card" style="padding: 14px; margin-bottom: 16px; border-left: 4px solid var(--success); background-color: #F1F8E9;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+              <h4 style="font-size: 0.85rem; font-weight: 800; color: var(--secondary); display: flex; align-items: center; gap: 6px;">
+                <span id="recap-icon">🏠</span>
+                <span id="recap-title">Home Delivery Details</span>
+              </h4>
+              <div id="recap-body-text" style="font-size: 0.8rem; color: var(--grey-800); margin-top: 6px; line-height: 1.45;">
+                <!-- Dynamically filled -->
+              </div>
+            </div>
+            <button id="edit-delivery-btn" style="background: none; font-size: 0.75rem; font-weight: 700; color: var(--primary); cursor: pointer; text-decoration: underline;">
+              Edit
+            </button>
+          </div>
         </div>
 
-        <!-- Order Items Breakdown -->
-        <section class="section">
-          <h3 class="checkout-section-title">Order Summary</h3>
-          <div class="card" style="padding: 12px; margin-top: 8px;" id="order-items-breakdown">
-            <!-- Dynamically populated rows -->
+        <!-- Order Items Summary Card -->
+        <section class="section" style="margin-top: 0;">
+          <h3 class="checkout-section-title">Order Items Summary</h3>
+          <div class="card" style="padding: 14px; margin-top: 8px; display: flex; flex-direction: column; gap: 12px;" id="checkout-items-summary-container">
+            <!-- Render items dynamically -->
           </div>
         </section>
 
-        <!-- Final Pricing and CTA Panel -->
-        <div class="checkout-summary-panel">
+        <!-- Final Checkout Total Breakdown Panel -->
+        <div class="checkout-summary-panel" style="margin-top: 16px;">
           <div class="summary-row">
-            <span>Items Subtotal</span>
-            <span id="subtotal-val">MWK 0</span>
+            <span>Subtotal Value</span>
+            <span id="summary-subtotal-val" style="font-weight: 700;">MWK 0</span>
           </div>
           <div class="summary-row">
-            <span>Delivery Fee</span>
-            <span style="color: var(--success); font-weight: 600;">FREE</span>
+            <span>Delivery Logistics</span>
+            <span style="color: var(--success); font-weight: 700;">FREE</span>
           </div>
           <div class="summary-divider"></div>
           <div class="summary-row summary-row--total">
-            <span>Total Payable Amount</span>
-            <span id="total-val" style="color: var(--primary); font-size: 1.2rem; font-weight: 800;">MWK 0</span>
+            <span>Total Payable</span>
+            <span id="summary-total-val" style="color: var(--primary); font-size: 1.25rem; font-weight: 800;">MWK 0</span>
           </div>
 
-          <button type="submit" class="btn btn--primary btn--full" style="margin-top: 16px;" id="pay-place-btn">
-            Place Order
+          <!-- Pay Button -->
+          <button type="button" class="btn btn--primary btn--full" style="margin-top: 20px; font-weight: 800; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 20px; box-shadow: 0 4px 14px rgba(229, 57, 53, 0.3);" id="pay-btn">
+            <span>💳 Pay with Paychangu</span>
           </button>
+
+          <!-- Paychangu Logos and Security -->
+          <div class="paychangu-badge-row" style="margin-top: 16px; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+            <div class="payment-logos-flex" style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+              <span class="momo-logo momo-logo--airtel" title="Airtel Money">🔴 Airtel</span>
+              <span class="momo-logo momo-logo--mpamba" title="TNM Mpamba">🟢 Mpamba</span>
+              <span class="momo-logo momo-logo--visa" title="Visa / Mastercard">💳 Card</span>
+            </div>
+            <p style="font-size: 0.7rem; color: var(--grey-600); text-align: center; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+              <span>Your payment is secured by Paychangu</span>
+              <span style="font-size: 0.85rem;">🔒</span>
+            </p>
+          </div>
         </div>
-      </form>
+
+      </div>
     </main>
   </div>
 

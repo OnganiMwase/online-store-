@@ -3,71 +3,428 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Order Success - ShopEasy</title>
+  <title>Order Status - ShopEasy</title>
   <link rel="stylesheet" href="/css/main.css">
   <link rel="stylesheet" href="/css/layout.css">
   <link rel="stylesheet" href="/css/components.css">
+  <style>
+    @keyframes checkmark {
+      0% { transform: scale(0); opacity: 0; }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    @keyframes drawCheck {
+      to { stroke-dashoffset: 0; }
+    }
+
+    .success-checkmark-animated {
+      animation: checkmark 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    .checkmark-path {
+      stroke-dasharray: 48;
+      stroke-dashoffset: 48;
+      animation: drawCheck 0.5s ease-out 0.3s forwards;
+    }
+
+    .id-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background-color: var(--grey-100);
+      border: 1px dashed var(--grey-400);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--secondary);
+      font-size: 0.85rem;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.15s;
+    }
+
+    .id-badge:hover {
+      background-color: var(--grey-200);
+    }
+
+    .success-summary-card {
+      background-color: var(--white);
+      border: 1.5px solid var(--grey-200);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      width: 100%;
+      max-width: 380px;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.2px;
+    }
+
+    .status-badge--pending {
+      background-color: #FFF9C4;
+      color: #F57F17;
+      border: 1px solid #FBC02D;
+    }
+
+    .status-badge--success {
+      background-color: #C8E6C9;
+      color: #1B5E20;
+      border: 1px solid #4CAF50;
+    }
+
+    .status-badge--verifying {
+      background-color: #E3F2FD;
+      color: #0D47A1;
+      border: 1px solid #1E88E5;
+    }
+  </style>
 </head>
 <body>
-  <div class="app-container" style="justify-content: center; align-items: center; text-align: center;">
-    <main class="content" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 24px;">
+  <div class="app-container" style="justify-content: center; align-items: center; min-height: 100vh; padding: 24px 16px;">
+    
+    <!-- 1. POLLING / LOADING STATE CONTAINER -->
+    <div id="payment-polling-state" style="display: flex; flex-direction: column; align-items: center; gap: 18px; text-align: center; max-width: 320px;">
+      <span class="spinner" style="width: 44px; height: 44px;"></span>
+      <h2 style="font-size: 1.3rem; font-weight: 800; color: var(--secondary); letter-spacing: -0.3px;">Waiting for Payment Confirmation</h2>
+      <p style="font-size: 0.85rem; color: var(--grey-600); line-height: 1.5;">
+        We are checking with Paychangu to verify your payment status. This will take just a moment. Please do not close or reload this window.
+      </p>
+      <div id="polling-countdown" style="font-size: 0.75rem; color: var(--grey-500); font-weight: 700;">
+        Retrying in 30 seconds...
+      </div>
+    </div>
+
+    <!-- 2. VERIFYING STATE CONTAINER (Shown if polling takes >30 seconds) -->
+    <div id="payment-verifying-state" style="display: none; flex-direction: column; align-items: center; gap: 16px; text-align: center; max-width: 320px;">
+      <div style="font-size: 3rem;">⏳</div>
+      <span class="status-badge status-badge--verifying">Payment Verification In Progress</span>
+      <h2 style="font-size: 1.3rem; font-weight: 800; color: var(--secondary); letter-spacing: -0.3px;">Still Verifying Your Transaction</h2>
+      <p style="font-size: 0.85rem; color: var(--grey-600); line-height: 1.5;">
+        Your payment is taking longer than expected to settle. Don't worry, your order is registered and will be updated as soon as the gateway clears the transaction.
+      </p>
+      <div class="id-badge" id="verifying-order-badge">ORDER ID</div>
+      <div style="display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 12px;">
+        <a href="/orders.html" class="btn btn--primary btn--full">Go to My Orders</a>
+        <a href="/shop.html" class="btn btn--outline btn--full">Back to Shop</a>
+      </div>
+    </div>
+
+    <!-- 3. CONFIRMED PAID STATE CONTAINER -->
+    <div id="payment-success-state" style="display: none; flex-direction: column; align-items: center; gap: 20px; text-align: center; width: 100%; max-width: 400px; animation: fadeIn 0.3s ease-out;">
       
-      <!-- Success Icon Animation -->
-      <div class="success-icon-wrap" style="width: 80px; height: 80px; border-radius: 50%; background-color: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; margin-bottom: 8px; box-shadow: var(--shadow-md);">
-        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg>
+      <!-- Animated checkmark -->
+      <div class="success-checkmark-animated" style="width: 72px; height: 72px; border-radius: 50%; background-color: #E8F5E9; color: #2E7D32; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-md);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12" class="checkmark-path"></polyline>
+        </svg>
       </div>
 
-      <h1 style="font-size: 1.5rem; font-weight: 800; color: var(--secondary); letter-spacing: -0.5px;">Zikomo! Order Placed</h1>
-      <p style="font-size: 0.9rem; color: var(--grey-600); max-width: 320px; line-height: 1.5;">Thank you for shopping with ShopEasy. Your order has been registered and sent to the local seller for immediate preparation.</p>
-
-      <!-- Order ID card -->
-      <div class="card" style="width: 100%; max-width: 340px; padding: 14px; background-color: var(--grey-100); border: 1.5px solid var(--grey-200); text-align: left; display: flex; flex-direction: column; gap: 6px;">
-        <div style="font-size: 0.75rem; color: var(--grey-600); text-transform: uppercase; font-weight: 700;">Order Identifier</div>
-        <div style="font-size: 0.95rem; font-weight: 700; color: var(--secondary);" id="order-success-id">...</div>
-        <div style="border-top: 1px dashed var(--grey-300); margin: 6px 0;"></div>
-        <div style="font-size: 0.75rem; color: var(--grey-600); text-transform: uppercase; font-weight: 700;">Payment Guidelines</div>
-        <div style="font-size: 0.8rem; color: var(--grey-800); line-height: 1.4;" id="payment-guidelines">Checking payment method details...</div>
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+        <h1 style="font-size: 1.5rem; font-weight: 800; color: var(--secondary); letter-spacing: -0.5px; margin: 0;">Zikomo! Order placed! 🎉</h1>
+        <p style="font-size: 0.85rem; color: var(--grey-600); max-width: 300px; margin: 0 auto; line-height: 1.45;">
+          Thank you for shopping on ShopEasy. Your payment is complete and your order is being packaged.
+        </p>
       </div>
 
-      <!-- Action Buttons -->
-      <div style="display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 340px; margin-top: 12px;">
-        <a href="/orders.html" class="btn btn--primary btn--full">My Orders List</a>
-        <a href="/index.html" class="btn btn--outline btn--full">Return to Home</a>
+      <!-- Copyable Order ID -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+        <span style="font-size: 0.7rem; text-transform: uppercase; font-weight: 800; color: var(--grey-500); letter-spacing: 0.3px;">Order Identifier (Tap to copy)</span>
+        <div class="id-badge" id="success-order-id" title="Click to copy order ID">
+          <span>ID</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+        </div>
       </div>
-      
-    </main>
+
+      <!-- Success Details Breakdown Card -->
+      <div class="success-summary-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--grey-100); padding-bottom: 8px;">
+          <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: var(--grey-600);">Recipient Recap</span>
+          <span class="status-badge status-badge--success">Paid & Confirmed</span>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--grey-800); line-height: 1.4;" id="recap-buyer-details">
+          <!-- Filled dynamically -->
+        </div>
+
+        <div style="border-top: 1.5px dashed var(--grey-200); margin: 6px 0;"></div>
+
+        <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: var(--grey-600);">Items List</span>
+        <div style="display: flex; flex-direction: column; gap: 10px;" id="recap-items-container">
+          <!-- Filled dynamically -->
+        </div>
+
+        <div style="border-top: 1px solid var(--grey-100); padding-top: 8px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: var(--secondary); font-size: 0.9rem;">
+          <span>Total Settle Amount</span>
+          <span id="recap-total-val" style="color: var(--primary); font-size: 1.05rem;">MWK 0</span>
+        </div>
+      </div>
+
+      <!-- Success CTAs -->
+      <div style="display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 380px; margin-top: 6px;">
+        <button id="message-seller-btn" class="btn btn--primary btn--full" style="display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 800; padding: 14px;">
+          <span>💬 Message Seller</span>
+        </button>
+        <a href="/shop.html" class="btn btn--outline btn--full" style="font-weight: 700; padding: 13px;">Continue Shopping</a>
+      </div>
+
+    </div>
   </div>
 
   <script type="module">
-    import { auth, db } from './js/firebase-config.js'
-    import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js'
-    import { getUrlParam } from './js/utils.js'
+    import { auth, db } from "/js/firebase-config.js";
+    import { 
+      doc, 
+      getDoc,
+      setDoc,
+      addDoc,
+      collection,
+      serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    document.addEventListener('DOMContentLoaded', async () => {
-      const orderId = getUrlParam('id')
-      if (orderId) {
-        document.getElementById('order-success-id').textContent = orderId.toUpperCase()
-        
-        // Fetch order details to render payment method instructions
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getUrlParam, formatMWK, showToast, redirect } from "/js/utils.js";
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // support both "ref" and "id" params
+      const orderId = getUrlParam("ref") || getUrlParam("id");
+      if (!orderId) {
+        showToast("No order reference context was provided.", "danger");
+        redirect("/shop.html");
+        return;
+      }
+
+      const pollingState = document.getElementById("payment-polling-state");
+      const verifyingState = document.getElementById("payment-verifying-state");
+      const successState = document.getElementById("payment-success-state");
+      const countdownEl = document.getElementById("polling-countdown");
+
+      let currentOrder = null;
+      let totalPollSeconds = 30;
+      let pollInterval = null;
+
+      // Start the reactive polling loop
+      const startPolling = () => {
+        pollInterval = setInterval(async () => {
+          totalPollSeconds -= 3;
+          
+          if (countdownEl) {
+            countdownEl.textContent = `Verifying, next check in ${Math.max(0, totalPollSeconds)}s...`;
+          }
+
+          try {
+            const docSnap = await getDoc(doc(db, "orders", orderId));
+            if (docSnap.exists()) {
+              const order = docSnap.data();
+              currentOrder = order;
+
+              if (order.paymentStatus === "paid") {
+                clearInterval(pollInterval);
+                showSuccessScreen(order);
+                return;
+              }
+            }
+          } catch (err) {
+            console.error("Error checking order status:", err);
+          }
+
+          if (totalPollSeconds <= 0) {
+            clearInterval(pollInterval);
+            showVerifyingScreen();
+          }
+        }, 3000);
+      };
+
+      // Try initial check immediately
+      const initialCheck = async () => {
         try {
-          const docSnap = await getDoc(doc(db, 'orders', orderId))
+          const docSnap = await getDoc(doc(db, "orders", orderId));
           if (docSnap.exists()) {
-            const order = docSnap.data()
-            const guideEl = document.getElementById('payment-guidelines')
-            
-            if (order.paymentMethod === 'airtel-money') {
-              guideEl.innerHTML = `Please check your phone for a push PIN prompt from <strong>Airtel Money</strong> to finalize payment of <strong>MWK ${order.totalPrice?.toLocaleString()}</strong>.`
-            } else if (order.paymentMethod === 'tnm-mpamba') {
-              guideEl.innerHTML = `Please check your phone for a push PIN prompt from <strong>TNM Mpamba</strong> to authorize payment of <strong>MWK ${order.totalPrice?.toLocaleString()}</strong>.`
-            } else {
-              guideEl.innerHTML = `You have selected <strong>Cash on Delivery</strong>. Please prepare <strong>MWK ${order.totalPrice?.toLocaleString()}</strong> cash to hand over when you meet the seller for item collection.`
+            const order = docSnap.data();
+            currentOrder = order;
+            if (order.paymentStatus === "paid") {
+              showSuccessScreen(order);
+              return;
             }
           }
+          // If not paid yet, initiate countdown polling
+          startPolling();
         } catch (err) {
-          console.error(err)
+          console.error("Initial check fail:", err);
+          startPolling();
         }
-      }
-    })
+      };
+
+      initialCheck();
+
+      // Switch to verifying screen if it times out
+      const showVerifyingScreen = () => {
+        pollingState.style.display = "none";
+        verifyingState.style.display = "flex";
+        
+        const badge = document.getElementById("verifying-order-badge");
+        if (badge) {
+          badge.textContent = orderId.toUpperCase();
+          badge.addEventListener("click", () => copyTextToClipboard(orderId));
+        }
+      };
+
+      // Switch to success screen when status == 'paid'
+      const showSuccessScreen = (order) => {
+        pollingState.style.display = "none";
+        verifyingState.style.display = "none";
+        successState.style.display = "flex";
+
+        // Setup Copyable ID
+        const successBadge = document.getElementById("success-order-id");
+        if (successBadge) {
+          successBadge.innerHTML = `<span>${orderId.toUpperCase()}</span> <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
+          successBadge.addEventListener("click", () => copyTextToClipboard(orderId));
+        }
+
+        // Fill buyer & delivery recap
+        const recapEl = document.getElementById("recap-buyer-details");
+        if (recapEl) {
+          if (order.deliveryType === "home") {
+            recapEl.innerHTML = `
+              <strong>Delivery Type:</strong> 🏠 Home Delivery<br>
+              <strong>Recipient:</strong> ${order.deliveryInfo?.name || order.buyerName || "Malawi Buyer"}<br>
+              <strong>Contact Phone:</strong> ${order.deliveryInfo?.phone || order.buyerPhone || ""}<br>
+              <strong>Address:</strong> ${order.deliveryInfo?.area || ""}, ${order.deliveryInfo?.city || ""}
+            `;
+          } else {
+            recapEl.innerHTML = `
+              <strong>Delivery Type:</strong> 🚶 Self Pickup<br>
+              <strong>Buyer:</strong> ${order.deliveryInfo?.name || order.buyerName || "Malawi Buyer"}<br>
+              <strong>Contact Phone:</strong> ${order.deliveryInfo?.phone || order.buyerPhone || ""}
+            `;
+          }
+        }
+
+        // Fill items list
+        const itemsContainer = document.getElementById("recap-items-container");
+        if (itemsContainer && order.items) {
+          itemsContainer.innerHTML = "";
+          order.items.forEach(item => {
+            const row = document.createElement("div");
+            row.style.cssText = "display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--grey-800);";
+            
+            row.innerHTML = `
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <img src="${item.image || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=40&q=80'}" style="width: 28px; height: 28px; border-radius: 4px; object-fit: cover; border: 1px solid var(--grey-200);">
+                <span style="font-weight: 700; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.name}</span>
+                <span style="color: var(--grey-600); font-size: 0.75rem;">x${item.qty || item.quantity || 1}</span>
+              </div>
+              <span style="font-weight: 700;">MWK ${Number(item.price * (item.qty || 1)).toLocaleString()}</span>
+            `;
+            itemsContainer.appendChild(row);
+          });
+        }
+
+        // Settle total
+        const totalEl = document.getElementById("recap-total-val");
+        if (totalEl) {
+          totalEl.textContent = formatMWK(order.total || order.subtotal || 0);
+        }
+
+        // Setup Chat with Seller Action Button
+        const messageBtn = document.getElementById("message-seller-btn");
+        if (messageBtn) {
+          messageBtn.addEventListener("click", () => messageSellerFlow(order));
+        }
+      };
+
+      // Seller Message Initializer (Deterministic IDs)
+      const messageSellerFlow = async (order) => {
+        const currentUser = auth.currentUser;
+        if (!currentUser) {
+          showToast("Please sign in to message the seller.", "warning");
+          return;
+        }
+
+        // Find seller ID from first item
+        const sellerId = order.items?.[0]?.sellerId;
+        if (!sellerId) {
+          showToast("Seller information could not be found for this order.", "danger");
+          return;
+        }
+
+        if (currentUser.uid === sellerId) {
+          showToast("You cannot message yourself (you are the seller).", "warning");
+          return;
+        }
+
+        try {
+          // Generate deterministic ID
+          const convId = [currentUser.uid, sellerId].sort().join("_");
+          const convRef = doc(db, "conversations", convId);
+          const convSnap = await getDoc(convRef);
+
+          if (convSnap.exists()) {
+            redirect(`/chat-room.html?id=${convId}&name=Seller`);
+          } else {
+            // Get seller profile details
+            let sellerName = "Local Seller";
+            try {
+              const sellerSnap = await getDoc(doc(db, "users", sellerId));
+              if (sellerSnap.exists()) {
+                const sData = sellerSnap.data();
+                sellerName = sData.storeName || sData.name || "Local Seller";
+              }
+            } catch (err) {
+              console.warn("Could not load seller details for chat room setup");
+            }
+
+            // Create conversation doc
+            await setDoc(convRef, {
+              id: convId,
+              buyerId: currentUser.uid,
+              buyerName: currentUser.displayName || "Buyer",
+              sellerId: sellerId,
+              sellerName: sellerName,
+              lastMessage: `Hello! I just paid for Order #${orderId}. Please check and prepare the shipment.`,
+              lastMessageTime: serverTimestamp(),
+              updatedAt: serverTimestamp()
+            });
+
+            // Set initial chat message
+            await addDoc(collection(db, `conversations/${convId}/messages`), {
+              senderId: currentUser.uid,
+              text: `Hello! I just paid for Order #${orderId}. Please check and prepare the shipment.`,
+              timestamp: serverTimestamp()
+            });
+
+            showToast("Starting conversation...", "success");
+            setTimeout(() => {
+              redirect(`/chat-room.html?id=${convId}&name=${encodeURIComponent(sellerName)}`);
+            }, 800);
+          }
+        } catch (chatErr) {
+          console.error("Error setting up seller message channel:", chatErr);
+          showToast("Could not start message thread.", "danger");
+        }
+      };
+
+      // Clipboard Utility
+      const copyTextToClipboard = (text) => {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast("Order ID copied to clipboard!", "success");
+        }).catch(() => {
+          showToast("Failed to copy ID automatically.", "danger");
+        });
+      };
+    });
   </script>
 </body>
 </html>

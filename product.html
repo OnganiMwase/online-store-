@@ -7,61 +7,113 @@
   <link rel="stylesheet" href="/css/main.css">
   <link rel="stylesheet" href="/css/layout.css">
   <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/pages/shop.css">
   <link rel="stylesheet" href="/css/pages/product.css">
 </head>
 <body>
   <div class="app-container">
-    <!-- Back Header Bar -->
-    <header class="header">
-      <button class="header__btn" onclick="history.back()" style="display: flex;">
+    <!-- BACK + ACTIONS BAR (fixed top) -->
+    <header class="product-header" id="productHeader">
+      <button class="header__btn" onclick="history.back()" style="display: flex; background: none; border: none; cursor: pointer; color: var(--secondary);" aria-label="Back">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg>
       </button>
-      <h2 class="modal__title">Product Details</h2>
-      <button class="header__btn" id="share-btn" style="display: flex;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-share-2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-      </button>
+      <h2 class="product-header__title" id="scrollHeaderTitle">Product Details</h2>
+      <div style="display: flex; gap: 8px;">
+        <button class="header__btn" id="shareBtn" style="display: flex; background: none; border: none; cursor: pointer; color: var(--secondary);" aria-label="Share">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-share-2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </button>
+        <button class="header__btn" id="wishlistHeaderBtn" style="display: flex; background: none; border: none; cursor: pointer; color: var(--secondary);" aria-label="Wishlist">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart" id="wishlistHeartIcon"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+        </button>
+      </div>
     </header>
 
-    <main class="content" style="padding-bottom: 100px;" id="product-details-container">
-      <!-- Injected by JavaScript -->
-      <div class="skeleton-detail" style="display: flex; flex-direction: column; gap: 16px;">
-        <div class="skeleton" style="width: 100%; aspect-ratio: 1; border-radius: var(--radius);"></div>
+    <main class="content" style="padding-bottom: 100px;" id="productContainer">
+      <!-- Loading Skeleton Detail Container -->
+      <div class="skeleton-detail" style="display: flex; flex-direction: column; gap: 16px; padding: 16px;">
+        <div class="skeleton" style="width: 100%; aspect-ratio: 1.1; border-radius: var(--radius);"></div>
         <div class="skeleton" style="width: 60%; height: 24px;"></div>
         <div class="skeleton" style="width: 30%; height: 18px;"></div>
         <div class="skeleton" style="width: 100%; height: 80px;"></div>
       </div>
     </main>
 
-    <!-- Bottom Action Button Panel (Sticky) -->
-    <div class="product-actions-bar" id="actions-bar" style="display: none;">
-      <button class="btn btn--outline" id="wishlist-action-btn" aria-label="Wishlist">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+    <!-- STICKY BOTTOM BAR -->
+    <div class="product-actions-bar" id="stickyActionsBar" style="display: none;">
+      <button class="sticky-action-btn" id="bottomChatBtn" aria-label="Message">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-circle"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+        <span>Message</span>
       </button>
-      <button class="btn btn--secondary" id="chat-action-btn" style="flex: 1;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-circle"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
-        Chat Seller
+      <button class="sticky-action-btn" id="bottomWishlistBtn" aria-label="Save">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart" id="stickyWishlistIcon"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+        <span>Save</span>
       </button>
-      <button class="btn btn--primary" id="add-cart-btn" style="flex: 1.2;">
-        Add to Cart
-      </button>
+      <button class="btn btn--outline" id="bottomAddToCartBtn" style="flex: 1.2; padding: 10px 8px; font-size: 0.85rem;">Add to Cart</button>
+      <button class="btn btn--primary" id="bottomBuyNowBtn" style="flex: 1.2; padding: 10px 8px; font-size: 0.85rem;">Buy Now</button>
     </div>
 
-    <!-- Contact / Chat Seller Modal -->
-    <div class="modal" id="contact-modal">
-      <div class="modal__container">
+    <!-- WRITE REVIEW MODAL -->
+    <div class="modal" id="reviewModal">
+      <div class="modal__container" style="max-height: 90vh; overflow-y: auto;">
         <div class="modal__header">
-          <h3 class="modal__title">Send Message</h3>
-          <span class="modal__close" data-close>&times;</span>
+          <h3 class="modal__title">Write a Review</h3>
+          <span class="modal__close" id="closeReviewModal">&times;</span>
         </div>
-        <form id="contact-form">
-          <div class="form-group">
-            <label class="form-label" for="contact-msg">Your Message</label>
-            <textarea id="contact-msg" class="form-textarea" placeholder="Is this still available?" required></textarea>
+        <form id="reviewForm" style="padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+          <!-- Star selection -->
+          <div>
+            <label class="form-label" style="font-weight: 600; margin-bottom: 8px; display: block;">Your Rating</label>
+            <div class="star-rating-select" id="starRatingSelect">
+              <span class="star-select-item" data-rating="1">★</span>
+              <span class="star-select-item" data-rating="2">★</span>
+              <span class="star-select-item" data-rating="3">★</span>
+              <span class="star-select-item" data-rating="4">★</span>
+              <span class="star-select-item" data-rating="5">★</span>
+            </div>
+            <input type="hidden" id="reviewRatingInput" required>
           </div>
-          <button type="submit" class="btn btn--primary btn--full" id="contact-submit-btn">Send Message</button>
+
+          <!-- Review text -->
+          <div>
+            <label class="form-label" for="reviewText" style="font-weight: 600; margin-bottom: 4px; display: block;">Your Review</label>
+            <textarea id="reviewText" class="form-textarea" placeholder="Share your experience with this seller and product (min 20, max 500 characters)..." required style="width: 100%; min-height: 100px; resize: none;"></textarea>
+            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--grey-500); margin-top: 4px;">
+              <span id="charCount">0 / 500 characters</span>
+              <span id="charWarning" style="color: var(--danger); display: none;">Min 20 characters required</span>
+            </div>
+          </div>
+
+          <!-- Photo Upload (up to 3) -->
+          <div>
+            <label class="form-label" style="font-weight: 600; margin-bottom: 4px; display: block;">Upload Photos (Max 3)</label>
+            <p style="font-size: 0.75rem; color: var(--grey-500); margin-bottom: 8px;">Add photos of the item you received.</p>
+            <div class="review-image-upload-row">
+              <div class="review-upload-slot" id="uploadSlotContainer">
+                <input type="file" id="reviewImageInput" accept="image/*" multiple style="display: none;">
+                <label for="reviewImageInput" class="review-upload-btn">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+                  <span>Add Photo</span>
+                </label>
+              </div>
+              <div class="review-uploaded-thumbnails" id="uploadedThumbnails"></div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn--primary btn--full" id="submitReviewBtn">Submit Review</button>
         </form>
       </div>
     </div>
+
+    <!-- IMAGE EXPAND MODAL -->
+    <div class="modal" id="imageExpandModal" style="background-color: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1000;">
+      <div style="position: absolute; right: 16px; top: 16px; font-size: 2.5rem; color: var(--white); cursor: pointer; z-index: 1001; font-weight: bold;" id="closeExpandModal">&times;</div>
+      <div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; padding: 16px;">
+        <img id="expandedImg" style="max-width: 100%; max-height: 90vh; object-fit: contain; border-radius: var(--radius-sm);" alt="Expanded Image">
+      </div>
+    </div>
+
+    <!-- BOTTOM NAV CONTAINER -->
+    <div id="nav-container"></div>
   </div>
 
   <script type="module" src="/js/pages/product.js"></script>

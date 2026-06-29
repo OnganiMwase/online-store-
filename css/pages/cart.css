@@ -1,29 +1,105 @@
-/* Cart page custom styles */
+/* ShopEasy Cart Styling */
 
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.95); }
+}
+
+/* Cart Container */
 .cart-items-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: 24px;
+  gap: 20px;
 }
 
+/* Grouped Seller Section */
+.store-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: var(--white);
+  border: 1.5px solid var(--grey-200);
+  border-radius: var(--radius);
+  padding: 14px;
+  box-shadow: var(--shadow);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.store-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--grey-100);
+}
+
+.store-header__title {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--secondary);
+  letter-spacing: -0.2px;
+}
+
+/* Individual Cart Row */
 .cart-row {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px;
-  background-color: var(--white);
-  border: 1.5px solid var(--grey-200);
-  border-radius: var(--radius);
+  padding: 8px 0;
+  border-bottom: 1px solid var(--grey-100);
   position: relative;
+  transition: all 0.2s ease;
 }
 
+.cart-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* Checkboxes */
+.custom-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--grey-400);
+  border-radius: 6px;
+  outline: none;
+  cursor: pointer;
+  display: grid;
+  place-content: center;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.custom-checkbox:checked {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.custom-checkbox:checked::before {
+  content: "";
+  width: 10px;
+  height: 6px;
+  border-left: 2px solid var(--white);
+  border-bottom: 2px solid var(--white);
+  transform: rotate(-45deg) translate(1px, -1px);
+}
+
+/* Product Info */
 .cart-row__img {
   width: 64px;
   height: 64px;
   object-fit: cover;
-  border-radius: var(--radius-sm);
+  border-radius: 8px;
   background-color: var(--grey-100);
+  flex-shrink: 0;
+  border: 1px solid var(--grey-200);
 }
 
 .cart-row__info {
@@ -31,6 +107,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 0; /* Enable truncation */
 }
 
 .cart-row__name {
@@ -38,85 +115,126 @@
   font-weight: 700;
   color: var(--secondary);
   line-height: 1.3;
-  margin-right: 24px; /* Space for delete button */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 16px;
+}
+
+.cart-row__variant {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--grey-600);
 }
 
 .cart-row__price {
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-size: 0.95rem;
+  font-weight: 800;
   color: var(--primary);
+  margin-top: 2px;
+}
+
+/* Stepper Controls */
+.cart-row__controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
 }
 
 .cart-row__controls {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 4px;
+  background-color: var(--grey-100);
+  border-radius: 100px;
+  padding: 2px;
+  border: 1px solid var(--grey-200);
 }
 
 .cart-qty-btn {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  background-color: var(--grey-100);
+  background: none;
   color: var(--secondary);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: 0.9rem;
+  font-weight: 800;
+  font-size: 1rem;
   cursor: pointer;
-  transition: all var(--transition);
+  transition: background-color 0.1s;
 }
 
-.cart-qty-btn:active {
+.cart-qty-btn:hover {
   background-color: var(--grey-200);
 }
 
 .cart-qty-val {
-  font-size: 0.85rem;
-  font-weight: 600;
-  min-width: 16px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  min-width: 24px;
   text-align: center;
+  color: var(--secondary);
 }
 
+/* Remove button */
 .cart-row__delete {
-  position: absolute;
-  top: 12px;
-  right: 12px;
+  background: none;
   color: var(--grey-400);
   cursor: pointer;
-  background: none;
+  transition: color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 50%;
 }
 
 .cart-row__delete:hover {
-  color: var(--danger);
+  color: var(--primary);
+  background-color: var(--primary-light);
 }
 
-/* Cart Summary Panel */
-.cart-summary-panel {
-  background-color: var(--grey-100);
-  border: 1px solid var(--grey-200);
-  border-radius: var(--radius);
-  padding: 16px;
-}
-
-.summary-row {
+/* Sticky Bottom Summary Card */
+.cart-summary-sticky {
+  position: fixed;
+  bottom: 60px; /* Safe distance above standard bottom navigation */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: var(--max-width);
+  background-color: var(--white);
+  border-top: 1.5px solid var(--grey-200);
+  border-left: 1.5px solid var(--grey-200);
+  border-right: 1.5px solid var(--grey-200);
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  padding: 14px 18px;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.06);
+  z-index: 99;
   display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.summary-sticky-container {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  font-size: 0.85rem;
-  color: var(--grey-800);
-  margin-bottom: 8px;
 }
 
-.summary-row--total {
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: var(--secondary);
-  margin-bottom: 0;
+/* Disabled Sticky Checkout CTA */
+#sticky-checkout-btn:disabled {
+  background-color: var(--grey-400);
+  color: var(--grey-600);
+  box-shadow: none;
+  cursor: not-allowed;
 }
 
-.summary-divider {
-  border-bottom: 1.5px dashed var(--grey-200);
-  margin: 12px 0;
+/* Animation triggers */
+.cart-row-removed {
+  animation: fadeOut 0.25s forwards;
 }
