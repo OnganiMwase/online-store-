@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create Account — ShopEasy</title>
-  <link class="auth-css" rel="stylesheet" href="css/main.css">
-  <link class="auth-css" rel="stylesheet" href="css/layout.css">
-  <link class="auth-css" rel="stylesheet" href="css/pages/auth.css">
+  <title>Complete Your Profile — ShopEasy</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/pages/auth.css">
 </head>
 <body class="auth-page">
 
-  <div class="auth-container" id="register-container">
+  <div class="auth-container" id="complete-profile-container">
     
     <div class="auth-logo">
       <span class="logo-box">SE</span>
@@ -18,27 +18,11 @@
       <span class="logo-flag">🇲🇼</span>
     </div>
 
-    <h1 class="auth-title">Create Account</h1>
-    <p class="auth-subtitle">Join thousands of Malawian buyers and sellers</p>
+    <h1 class="auth-title">Complete Your Profile</h1>
+    <p class="auth-subtitle">Just a few details to set up your marketplace account</p>
 
-    <form id="registerForm" class="auth-form" novalidate>
+    <form id="completeProfileForm" class="auth-form" novalidate>
       
-      <div class="form-group">
-        <label class="form-label" for="name">Full Name*</label>
-        <input class="form-input" type="text" id="name" 
-          name="name" placeholder="John Phiri" 
-          autocomplete="name" required>
-        <span class="form-error" id="nameError"></span>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="email">Email address*</label>
-        <input class="form-input" type="email" id="email" 
-          name="email" placeholder="johnphiri@gmail.com" 
-          autocomplete="email" required>
-        <span class="form-error" id="emailError"></span>
-      </div>
-
       <div class="form-group">
         <label class="form-label" for="phone">Phone Number</label>
         <input class="form-input" type="tel" id="phone" 
@@ -92,50 +76,15 @@
         <span class="form-error" id="cityError"></span>
       </div>
 
-      <div class="form-group">
-        <label class="form-label" for="password">Password*</label>
-        <div class="input-with-icon">
-          <input class="form-input" type="password" id="password"
-            name="password" placeholder="Min 8 chars, 1 uppercase, 1 number"
-            autocomplete="new-password" required>
-          <button type="button" class="toggle-password" 
-            id="togglePassword" aria-label="Show password">
-            👁️
-          </button>
-        </div>
-        <span class="form-error" id="passwordError"></span>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="confirmPassword">Confirm Password*</label>
-        <div class="input-with-icon">
-          <input class="form-input" type="password" id="confirmPassword"
-            name="confirmPassword" placeholder="Confirm your password"
-            autocomplete="new-password" required>
-          <button type="button" class="toggle-password" 
-            id="toggleConfirmPassword" aria-label="Show password">
-            👁️
-          </button>
-        </div>
-        <span class="form-error" id="confirmPasswordError"></span>
-      </div>
-
       <button type="submit" class="btn btn--primary btn--full" 
-        id="registerBtn">
-        Create Account
+        id="completeProfileBtn">
+        Complete Registration
       </button>
 
     </form>
 
-    <p class="auth-switch">
-      Already have an account? 
-      <a href="login.html" class="link link--primary">
-        Sign in
-      </a>
-    </p>
-
   </div>
 
-  <script type="module" src="js/pages/register.js"></script>
+  <script type="module" src="js/pages/complete-profile.js"></script>
 </body>
 </html>
