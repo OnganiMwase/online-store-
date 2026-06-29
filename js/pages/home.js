@@ -1,113 +1,258 @@
-/**
- * ShopEasy Home Page Control Module
- */
-
-import { db } from '../firebase-config.js'
+import { db, auth } from '../firebase-config.js'
+import { initAuth, currentUserData } from '../auth.js'
 import { 
-  collection, 
-  getDocs, 
-  limit, 
-  query, 
-  orderBy 
+  collection, query, orderBy, limit, 
+  startAfter, getDocs, where
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js'
+import { formatMWK, showToast } from '../utils.js'
+import { renderProductCard, renderSkeleton, renderEmptyState } 
+  from '../ui.js'
 
-import { injectHeaderAndNav, renderProductCard, renderSkeleton, renderEmptyState, renderErrorState } from '../ui.js'
-import { handleFirestoreError, OperationType, redirect } from '../utils.js'
+let lastProductDoc = null
+const PAGE_SIZE = 12
 
-document.addEventListener('DOMContentLoaded', async () => {
-  // 1. Inject common UI Header and Bottom Nav
-  injectHeaderAndNav('home')
-
-  // 2. Setup Search Form Submission
-  const searchForm = document.getElementById('search-form')
-  const searchInput = document.getElementById('search-input')
-  if (searchForm && searchInput) {
-    searchForm.addEventListener('submit', (e) => {
-      e.preventDefault()
-      const queryStr = encodeURIComponent(searchInput.value.trim())
-      redirect(`/search.html?q=${queryStr}`)
-    })
+const init = async () => {
+  // Check auth state and personalise
+  await initAuth()
+  
+  if (currentUserData) {
+    showGreeting()
+    updateCartBadge()
+    updateMessageBadge()
   }
+  
+  await Promise.all([
+    loadCategories(),
+    loadLatestProducts(),
+    loadSellers(),
+    loadAllProducts()
+  ])
+}
 
-  // 3. Load Categories from Firestore
-  const categoriesContainer = document.getElementById('categories-container')
+const showGreeting = () => {
+  document.getElementById('welcomeSection').classList.add('hidden')
+  document.getElementById('greetingSection').classList.remove('hidden')
+  
+  const hour = new Date().getHours()
+  const greeting = hour < 12 ? 'Good morning' 
+    : hour < 17 ? 'Good afternoon' 
+    : 'Good evening'
+  
+  document.getElementById('greetingText').textContent = greeting
+  document.getElementById('greetingName').textContent = 
+    currentUserData.name.split(' ')[0]
+  
+  const avatar = document.getElementById('greetingAvatar')
+  if (currentUserData.avatar) {
+    avatar.style.backgroundImage = `url(${currentUserData.avatar})`
+    avatar.classList.add('has-image')
+  } else {
+    avatar.textContent = currentUserData.name.charAt(0).toUpperCase()
+  }
+}
+
+const updateCartBadge = async () => {
+  const cartBadge = document.getElementById('cartBadge')
+  if (!cartBadge || !auth.currentUser) return
   try {
-    const catsSnapshot = await getDocs(collection(db, 'categories'))
-    categoriesContainer.innerHTML = '' // Clear skeletons
-    
-    if (catsSnapshot.empty) {
-      // Setup some default beautiful local categories if Firestore is empty
-      const localCategories = [
-        { id: 'electronics', name: 'Electronics', icon: '📱' },
-        { id: 'fashion', name: 'Fashion', icon: '👕' },
-        { id: 'agriculture', name: 'Agri & Food', icon: '🌽' },
-        { id: 'home', name: 'Home & Living', icon: '🏡' },
-        { id: 'vehicles', name: 'Vehicles', icon: '🚗' }
-      ]
-      
-      localCategories.forEach(cat => {
-        const catEl = document.createElement('div')
-        catEl.className = 'category-item'
-        catEl.innerHTML = `
-          <div class="category-item__icon">${cat.icon}</div>
-          <span class="category-item__name">${cat.name}</span>
-        `
-        catEl.addEventListener('click', () => {
-          redirect(`/category.html?id=${cat.id}&name=${encodeURIComponent(cat.name)}`)
-        })
-        categoriesContainer.appendChild(catEl)
-      })
+    const snap = await getDocs(collection(db, `carts/${auth.currentUser.uid}/items`))
+    const count = snap.size
+    if (count > 0) {
+      cartBadge.textContent = count
+      cartBadge.classList.remove('hidden')
     } else {
-      catsSnapshot.forEach(doc => {
-        const cat = doc.data()
-        const catEl = document.createElement('div')
-        catEl.className = 'category-item'
-        catEl.innerHTML = `
-          <div class="category-item__icon">${cat.icon || '📦'}</div>
-          <span class="category-item__name">${cat.name}</span>
-        `
-        catEl.addEventListener('click', () => {
-          redirect(`/category.html?id=${doc.id}&name=${encodeURIComponent(cat.name)}`)
-        })
-        categoriesContainer.appendChild(catEl)
-      })
+      cartBadge.classList.add('hidden')
     }
-  } catch (error) {
-    handleFirestoreError(error, OperationType.LIST, 'categories')
+  } catch (err) {
+    console.error("Error updating cart badge: ", err)
   }
+}
 
-  // 4. Load Latest Products from Firestore
-  const productsContainer = document.getElementById('products-container')
-  productsContainer.innerHTML = renderSkeleton(4) // Show skeleton loader
+const updateMessageBadge = async () => {
+  const msgBadge = document.getElementById('msgBadge')
+  if (!msgBadge || !auth.currentUser) return
+  try {
+    const uid = auth.currentUser.uid
+    const buyerQuery = query(collection(db, 'conversations'), where('buyerId', '==', uid))
+    const sellerQuery = query(collection(db, 'conversations'), where('sellerId', '==', uid))
+    const [buyerSnap, sellerSnap] = await Promise.all([
+      getDocs(buyerQuery),
+      getDocs(sellerQuery)
+    ])
+    
+    let unreadCount = 0
+    const countedConvos = new Set()
+    
+    const countUnread = (docSnap) => {
+      const data = docSnap.data()
+      if (countedConvos.has(docSnap.id)) return
+      countedConvos.add(docSnap.id)
+      
+      if (data.unreadCount > 0 && data.lastSenderId !== uid) {
+        unreadCount += data.unreadCount
+      }
+    }
+    
+    buyerSnap.forEach(countUnread)
+    sellerSnap.forEach(countUnread)
+    
+    if (unreadCount > 0) {
+      msgBadge.textContent = unreadCount
+      msgBadge.classList.remove('hidden')
+    } else {
+      msgBadge.classList.add('hidden')
+    }
+  } catch (err) {
+    console.error("Error updating message badge: ", err)
+  }
+}
+
+const loadCategories = async () => {
+  const container = document.getElementById('categoriesList')
+  try {
+    const snap = await getDocs(
+      query(collection(db, 'categories'), 
+        orderBy('sortOrder', 'asc'))
+    )
+    
+    if (snap.empty) {
+      document.getElementById('categoriesSection').style.display = 'none'
+      return
+    }
+    
+    container.innerHTML = snap.docs.map(doc => {
+      const c = doc.data()
+      return `
+        <a href="category.html?slug=${c.slug}" class="category-chip">
+          <span class="category-chip__emoji">${c.emoji || '📦'}</span>
+          <span class="category-chip__name">${c.name}</span>
+        </a>
+      `
+    }).join('')
+    
+  } catch (err) {
+    container.innerHTML = ''
+  }
+}
+
+const loadLatestProducts = async () => {
+  const container = document.getElementById('latestProducts')
+  container.innerHTML = renderSkeleton(4)
   
   try {
-    const productsQuery = query(
-      collection(db, 'products'),
-      orderBy('createdAt', 'desc'),
-      limit(6)
+    const snap = await getDocs(
+      query(collection(db, 'products'),
+        where('isActive', '==', true),
+        orderBy('createdAt', 'desc'),
+        limit(6))
     )
-    const prodsSnapshot = await getDocs(productsQuery)
-    productsContainer.innerHTML = '' // Clear skeletons
     
-    if (prodsSnapshot.empty) {
-      // If Firestore database has no seeded data yet (standard rule for production), show a highly stylized welcome empty state
-      productsContainer.parentElement.innerHTML = renderEmptyState(
-        'store',
-        'Welcome to ShopEasy Malawi',
-        'Real local sellers from Blantyre, Lilongwe, Mzuzu, and Zomba populate this marketplace. Start browsing by clicking Shop below!',
-        'Explore Shop',
-        '/shop.html'
-      )
-    } else {
-      prodsSnapshot.forEach(doc => {
-        const product = doc.data()
-        // Ensure ID is added to product
-        product.id = doc.id
-        productsContainer.innerHTML += renderProductCard(product)
-      })
+    if (snap.empty) {
+      container.innerHTML = ''
+      document.getElementById('latestEmpty').innerHTML = 
+        renderEmptyState('package', 'No listings yet', 
+          'Be the first to list a product!', 
+          'Sell Something', 'sell-redirect.html')
+      document.getElementById('latestEmpty')
+        .classList.remove('hidden')
+      return
     }
-  } catch (error) {
-    productsContainer.innerHTML = renderErrorState('Unable to fetch latest listings. Please check your internet connection.')
-    handleFirestoreError(error, OperationType.LIST, 'products')
+    
+    container.innerHTML = snap.docs.map(doc => 
+      renderProductCard({ id: doc.id, ...doc.data() })
+    ).join('')
+    
+  } catch (err) {
+    container.innerHTML = renderEmptyState(
+      'package', 'Could not load products', 
+      'Check your connection and refresh', 
+      'Refresh', '#')
   }
-})
+}
+
+const loadSellers = async () => {
+  const container = document.getElementById('sellersList')
+  try {
+    const snap = await getDocs(
+      query(collection(db, 'stores'),
+        where('status', '==', 'approved'),
+        orderBy('createdAt', 'desc'),
+        limit(8))
+    )
+    
+    if (snap.empty) {
+      document.getElementById('sellersSection').style.display = 'none'
+      return
+    }
+    
+    container.innerHTML = snap.docs.map(doc => {
+      const s = doc.data()
+      return `
+        <a href="store.html?id=${doc.id}" class="store-chip">
+          <div class="store-chip__logo">
+            ${s.logo 
+              ? `<img src="${s.logo}" alt="${s.name}">` 
+              : `<span>${s.name.charAt(0)}</span>`}
+          </div>
+          <span class="store-chip__name">${s.name}</span>
+          <span class="store-chip__city">${s.city}</span>
+        </a>
+      `
+    }).join('')
+    
+  } catch (err) {
+    document.getElementById('sellersSection').style.display = 'none'
+  }
+}
+
+const loadAllProducts = async (loadMore = false) => {
+  const container = document.getElementById('allProducts')
+  if (!loadMore) container.innerHTML = renderSkeleton(12)
+  
+  try {
+    let q = query(collection(db, 'products'),
+      where('isActive', '==', true),
+      orderBy('createdAt', 'desc'),
+      limit(PAGE_SIZE))
+    
+    if (loadMore && lastProductDoc) {
+      q = query(collection(db, 'products'),
+        where('isActive', '==', true),
+        orderBy('createdAt', 'desc'),
+        startAfter(lastProductDoc),
+        limit(PAGE_SIZE))
+    } else {
+      container.innerHTML = ''
+    }
+    
+    const snap = await getDocs(q)
+    
+    if (snap.empty && !loadMore) {
+      container.innerHTML = `<div style="text-align: center; padding: 32px; color: var(--grey-600); grid-column: span 2;">No products available.</div>`
+      return
+    }
+    
+    lastProductDoc = snap.docs[snap.docs.length - 1]
+    
+    const html = snap.docs.map(doc => 
+      renderProductCard({ id: doc.id, ...doc.data() })
+    ).join('')
+    
+    container.insertAdjacentHTML('beforeend', html)
+    
+    const loadMoreBtn = document.getElementById('loadMoreBtn')
+    loadMoreBtn.style.display = 
+      snap.docs.length === PAGE_SIZE ? 'block' : 'none'
+    
+  } catch (err) {
+    if (!loadMore) {
+      container.innerHTML = renderEmptyState(
+        'package', 'Could not load products', '', 'Refresh', '#')
+    }
+  }
+}
+
+document.getElementById('loadMoreBtn')
+  .addEventListener('click', () => loadAllProducts(true))
+
+init()

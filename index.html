@@ -3,60 +3,162 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ShopEasy - Local Malawian Online Marketplace</title>
-  <link rel="stylesheet" href="/css/main.css">
-  <link rel="stylesheet" href="/css/layout.css">
-  <link rel="stylesheet" href="/css/components.css">
-  <link rel="stylesheet" href="/css/pages/home.css">
-  <link rel="manifest" href="/manifest.json">
+  <title>ShopEasy — Malawi's Local Marketplace</title>
+  <meta name="description" content="Buy and sell locally across Malawi. ShopEasy connects buyers and sellers in Lilongwe, Blantyre, Mzuzu and everywhere in between.">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages/home.css">
+  <link rel="manifest" href="manifest.json">
 </head>
 <body>
-  <div class="app-container">
-    <div id="header-container"></div>
-    
-    <main class="content">
-      <!-- Search Bar Banner -->
-      <div class="hero-banner">
-        <h1 class="hero-banner__title">Local Marketplace</h1>
-        <p class="hero-banner__subtitle">Discover trusted local sellers across Malawi</p>
-        <form class="hero-banner__search-form" id="search-form">
-          <input type="text" class="hero-banner__search-input" placeholder="What are you looking for today?" id="search-input" required>
-          <button type="submit" class="hero-banner__search-btn" aria-label="Search">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          </button>
-        </form>
+
+  <!-- TOP BAR -->
+  <header class="top-bar" id="topBar">
+    <div class="top-bar__logo">
+      <span class="logo-box">SE</span>
+      <span class="logo-text">ShopEasy</span>
+    </div>
+    <form class="top-bar__search" action="search.html" method="get">
+      <input type="search" name="q" 
+        placeholder="Search ShopEasy..." 
+        class="search-input" autocomplete="off">
+      <button type="submit" class="search-btn" aria-label="Search">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      </button>
+    </form>
+    <div class="top-bar__actions">
+      <a href="messages.html" class="icon-btn" id="msgBtn"
+        aria-label="Messages">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-circle"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+        <span class="badge badge--red hidden" id="msgBadge">0</span>
+      </a>
+      <span class="flag">🇲🇼</span>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="page-main" id="pageMain">
+
+    <!-- WELCOME SECTION (shown if not logged in) -->
+    <section class="welcome-section" id="welcomeSection">
+      <div class="welcome-card">
+        <div class="welcome-card__text">
+          <h2>Buy and sell across Malawi</h2>
+          <p>Join thousands of buyers and sellers in Lilongwe, Blantyre, Mzuzu and beyond.</p>
+          <div class="welcome-card__actions">
+            <a href="register.html" class="btn btn--primary">
+              Get Started
+            </a>
+            <a href="login.html" class="btn btn--outline">
+              Sign In
+            </a>
+          </div>
+        </div>
+        <div class="welcome-card__image">
+          🛍️
+        </div>
       </div>
+    </section>
 
-      <!-- Categories Section -->
-      <section class="section">
-        <div class="section__header">
-          <h2 class="section__title">Browse Categories</h2>
-          <a href="/shop.html" class="section__link">See All</a>
+    <!-- GREETING (shown if logged in) -->
+    <section class="greeting-section hidden" id="greetingSection">
+      <div class="greeting">
+        <div class="greeting__avatar" id="greetingAvatar"></div>
+        <div class="greeting__text">
+          <p id="greetingText">Good morning</p>
+          <h2 id="greetingName">Loading...</h2>
         </div>
-        <div class="categories-list horizontal-scroll" id="categories-container">
-          <!-- Categories will be dynamically rendered -->
-          <div class="skeleton-category skeleton" style="width: 70px; height: 70px; border-radius: 50%;"></div>
-          <div class="skeleton-category skeleton" style="width: 70px; height: 70px; border-radius: 50%;"></div>
-          <div class="skeleton-category skeleton" style="width: 70px; height: 70px; border-radius: 50%;"></div>
-          <div class="skeleton-category skeleton" style="width: 70px; height: 70px; border-radius: 50%;"></div>
-        </div>
-      </section>
+        <a href="orders.html" class="greeting__orders-link">
+          My Orders →
+        </a>
+      </div>
+    </section>
 
-      <!-- Promoted / Latest Products Section -->
-      <section class="section">
-        <div class="section__header">
-          <h2 class="section__title">Latest Arrivals</h2>
-          <a href="/shop.html" class="section__link">View All</a>
-        </div>
-        <div class="grid-2" id="products-container">
-          <!-- Products will be dynamically rendered -->
-        </div>
-      </section>
-    </main>
+    <!-- CATEGORIES -->
+    <section class="section" id="categoriesSection">
+      <div class="section-header">
+        <h2 class="section-title">Browse Categories</h2>
+        <a href="shop.html" class="section-link">See all</a>
+      </div>
+      <div class="horizontal-scroll" id="categoriesList">
+        <!-- Skeleton -->
+        <div class="category-skeleton"></div>
+        <div class="category-skeleton"></div>
+        <div class="category-skeleton"></div>
+        <div class="category-skeleton"></div>
+        <div class="category-skeleton"></div>
+      </div>
+    </section>
 
-    <div id="nav-container"></div>
-  </div>
+    <!-- LATEST PRODUCTS -->
+    <section class="section" id="latestSection">
+      <div class="section-header">
+        <h2 class="section-title">Latest Listings</h2>
+        <a href="shop.html" class="section-link">See all</a>
+      </div>
+      <div class="grid-2" id="latestProducts">
+        <!-- Skeletons rendered by JS -->
+      </div>
+      <div id="latestEmpty" class="hidden">
+        <!-- Empty state rendered by JS -->
+      </div>
+    </section>
 
-  <script type="module" src="/js/pages/home.js"></script>
+    <!-- SELLERS NEAR YOU -->
+    <section class="section" id="sellersSection">
+      <div class="section-header">
+        <h2 class="section-title">Sellers in Malawi</h2>
+        <a href="shop.html" class="section-link">Browse all</a>
+      </div>
+      <div class="horizontal-scroll" id="sellersList">
+        <!-- Loaded by JS -->
+      </div>
+    </section>
+
+    <!-- ALL PRODUCTS FEED -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">All Products</h2>
+      </div>
+      <div class="grid-2" id="allProducts">
+        <!-- Loaded by JS, infinite scroll -->
+      </div>
+      <button class="btn btn--outline btn--full" 
+        id="loadMoreBtn" style="display:none">
+        Load More
+      </button>
+    </section>
+
+  </main>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <a href="index.html" class="bottom-nav__item bottom-nav__item--active">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-home"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </a>
+    <a href="shop.html" class="bottom-nav__item">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-grid"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+      <span>Shop</span>
+    </a>
+    <a href="sell-redirect.html" class="bottom-nav__item bottom-nav__item--sell">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-circle"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
+      <span>Sell</span>
+    </a>
+    <a href="cart.html" class="bottom-nav__item">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+      <span class="relative">
+        Cart
+        <span class="badge badge--red hidden" id="cartBadge">0</span>
+      </span>
+    </a>
+    <a href="account.html" class="bottom-nav__item">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Account</span>
+    </a>
+  </nav>
+
+  <script type="module" src="js/pages/home.js"></script>
 </body>
 </html>
