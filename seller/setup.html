@@ -7,55 +7,287 @@
   <link rel="stylesheet" href="/css/main.css">
   <link rel="stylesheet" href="/css/layout.css">
   <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/pages/seller.css">
 </head>
 <body>
   <div class="app-container">
     <!-- Header Bar -->
     <header class="header">
-      <button class="header__btn" onclick="location.href='/account.html'" style="display: flex;">
+      <button class="header__btn" id="btn-back-to-account" style="display: flex;">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg>
       </button>
-      <h2 class="modal__title">Setup Your Store</h2>
+      <h2 class="modal__title" id="setup-header-title">Setup Store</h2>
       <div style="width: 22px;"></div> <!-- Spacer -->
     </header>
 
-    <main class="content">
-      <div style="text-align: center; padding: 12px 16px;">
-        <span style="font-size: 2.2rem;">🏪</span>
-        <h1 style="font-size: 1.3rem; font-weight: 800; color: var(--secondary); margin-top: 8px;">Start Selling on ShopEasy</h1>
-        <p style="font-size: 0.85rem; color: var(--grey-600); margin-top: 4px; line-height: 1.4;">Reach thousands of eager buyers in Blantyre, Lilongwe, Mzuzu, Zomba and surrounding districts across Malawi.</p>
+    <main class="content" style="padding: 16px 12px 30px 12px;">
+      <!-- Main Loading Screen -->
+      <div id="setup-loading-spinner" style="padding: 40px 0; text-align: center;">
+        <div class="skeleton" style="width: 100%; height: 60px; border-radius: var(--radius); margin-bottom: 12px;"></div>
+        <div class="skeleton" style="width: 100%; height: 180px; border-radius: var(--radius);"></div>
       </div>
 
-      <form id="seller-setup-form" style="margin-top: 16px;">
-        <div class="card" style="padding: 14px; display: flex; flex-direction: column; gap: 12px;">
-          <div class="form-group">
-            <label class="form-label" for="store-name">Store Name / Business Name</label>
-            <input type="text" id="store-name" class="form-input" placeholder="e.g. Phiri Electronics" required>
+      <!-- PENDING APPROVAL SCREEN -->
+      <div id="screen-pending" class="state-screen" style="display: none;">
+        <span class="state-illustration">⏳</span>
+        <h2 class="state-title">Your store is under review</h2>
+        <p class="state-desc">Our administrators are checking your details. We will verify your ID and notify you via email or SMS within 24 hours once approved.</p>
+        
+        <div class="state-meta-box">
+          <div class="state-meta-row">
+            <span class="state-meta-lbl">Store Name:</span>
+            <span class="state-meta-val" id="pending-store-name">My Store</span>
           </div>
-
-          <div class="form-group">
-            <label class="form-label" for="store-description">Business Description</label>
-            <textarea id="store-description" class="form-textarea" placeholder="Tell buyers what you specialize in selling..." required></textarea>
+          <div class="state-meta-row">
+            <span class="state-meta-lbl">Submitted On:</span>
+            <span class="state-meta-val" id="pending-submitted-date">--</span>
           </div>
-
-          <div class="form-group">
-            <label class="form-label" for="store-phone">Customer Contact Phone</label>
-            <input type="tel" id="store-phone" class="form-input" placeholder="e.g. +265 888 12 34 56" required>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="store-city">Primary City Location</label>
-            <select id="store-city" class="form-select" required>
-              <option value="Lilongwe">Lilongwe</option>
-              <option value="Blantyre">Blantyre</option>
-              <option value="Mzuzu">Mzuzu</option>
-              <option value="Zomba">Zomba</option>
-            </select>
+          <div class="state-meta-row">
+            <span class="state-meta-lbl">Current Status:</span>
+            <span class="state-meta-val" style="color: var(--warning);">Pending Approval</span>
           </div>
         </div>
 
-        <button type="submit" class="btn btn--primary btn--full" style="margin-top: 16px;" id="setup-submit-btn">Initialize My Store</button>
-      </form>
+        <a href="mailto:support@shopeasy.com?subject=ShopEasy%20Seller%20Review" class="state-support-link">Contact Support</a>
+      </div>
+
+      <!-- REJECTED SCREEN -->
+      <div id="screen-rejected" class="state-screen" style="display: none;">
+        <span class="state-illustration" style="animation: none;">❌</span>
+        <h2 class="state-title" style="color: var(--danger);">Application Not Approved</h2>
+        <p class="state-desc">Thank you for your interest in selling on ShopEasy. Unfortunately, your application could not be approved at this time.</p>
+        
+        <div class="state-meta-box" style="border-color: var(--danger); background-color: #FFEBEE;">
+          <h4 style="font-weight: 850; color: var(--danger); font-size: 0.82rem; margin-bottom: 6px;">Reason for Rejection:</h4>
+          <p id="rejection-reason-text" style="color: var(--secondary); font-weight: 500; line-height: 1.4; font-size: 0.78rem;">Please provide a clear front and back view of your national ID card.</p>
+        </div>
+
+        <p class="state-desc" style="font-size: 0.78rem; margin-bottom: 16px;">Please address the reasons stated above and submit a corrected application.</p>
+        
+        <button class="btn btn--primary btn--full" id="btn-reapply">Reapply & Correct Details</button>
+      </div>
+
+      <!-- ONBOARDING FORM WIZARD -->
+      <div id="screen-form" style="display: none;">
+        <!-- Header banner intro -->
+        <div style="text-align: center; margin-bottom: 16px;" id="wizard-intro-header">
+          <h1 style="font-size: 1.25rem; font-weight: 850; color: var(--secondary); margin-bottom: 4px;">Start Selling on ShopEasy</h1>
+          <p style="font-size: 0.76rem; color: var(--grey-600); line-height: 1.4;">Fill the forms below to request a virtual store and reach thousands of buyers across Malawi.</p>
+        </div>
+
+        <!-- Progress Indicator -->
+        <div class="wizard-progress">
+          <div class="wizard-progress-bar">
+            <div class="wizard-progress-fill" id="wizard-progress-fill"></div>
+          </div>
+          <div class="wizard-step-node wizard-step-node--active" data-step="1">1</div>
+          <div class="wizard-step-node" data-step="2">2</div>
+          <div class="wizard-step-node" data-step="3">3</div>
+          <div class="wizard-step-node" data-step="4">4</div>
+        </div>
+
+        <form id="onboarding-multi-form" novalidate>
+          
+          <!-- STEP 1: STORE DETAILS -->
+          <div class="wizard-step-panel wizard-step-panel--active" data-step="1">
+            <div class="card" style="padding: 16px; display: flex; flex-direction: column; gap: 14px;">
+              <h3 style="font-size: 0.95rem; font-weight: 850; color: var(--secondary); border-bottom: 1.5px solid var(--grey-100); padding-bottom: 8px;">Step 1: Store Profile</h3>
+
+              <div class="form-group">
+                <label class="form-label" for="store-name">Store / Business Name*</label>
+                <input type="text" id="store-name" class="form-input" placeholder="e.g. Lilongwe Smart Gadgets" required>
+                <span class="field-error-msg" id="error-store-name">Store name must be unique.</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="store-description">Business Description* (Min 50 Chars)</label>
+                <textarea id="store-description" class="form-textarea" placeholder="Describe the products you sell, your specialties, and shipping values..." style="height: 110px;" required></textarea>
+                <div class="textarea-counter" id="store-description-counter">0 / 50 characters</div>
+                <span class="field-error-msg" id="error-store-description">Please enter a description of at least 50 characters.</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="store-category">Main Category*</label>
+                <select id="store-category" class="form-select" required>
+                  <option value="" disabled selected>Select category...</option>
+                </select>
+                <span class="field-error-msg" id="error-store-category">Category is required.</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Store Logo / Brand Image*</label>
+                <div class="upload-placeholder-box" id="logo-upload-box">
+                  <span class="upload-placeholder-icon">📸</span>
+                  <span class="upload-placeholder-lbl">Upload Logo</span>
+                  <span class="upload-placeholder-sub">JPG, PNG up to 2MB</span>
+                  <img id="logo-preview" class="upload-preview-img" style="display: none;">
+                </div>
+                <input type="file" id="logo-file-input" accept="image/*" style="display: none;">
+                <span class="field-error-msg" id="error-store-logo">Please upload a store logo.</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="store-city">Your Primary City*</label>
+                <select id="store-city" class="form-select" required>
+                  <option value="Lilongwe">Lilongwe</option>
+                  <option value="Blantyre">Blantyre</option>
+                  <option value="Mzuzu">Mzuzu</option>
+                  <option value="Zomba">Zomba</option>
+                </select>
+                <span class="field-error-msg" id="error-store-city">City is required.</span>
+              </div>
+            </div>
+
+            <button type="button" class="btn btn--primary btn--full" style="margin-top: 16px;" id="btn-next-step-1">Next: Contact & Payout &rarr;</button>
+          </div>
+
+          <!-- STEP 2: CONTACT & PAYOUT -->
+          <div class="wizard-step-panel" data-step="2">
+            <div class="card" style="padding: 16px; display: flex; flex-direction: column; gap: 14px;">
+              <h3 style="font-size: 0.95rem; font-weight: 850; color: var(--secondary); border-bottom: 1.5px solid var(--grey-100); padding-bottom: 8px;">Step 2: Contacts & Mobile Money Payout</h3>
+
+              <div class="form-group">
+                <label class="form-label" for="store-phone">Business Contact Phone*</label>
+                <input type="tel" id="store-phone" class="form-input" placeholder="+265 888 123 456" required>
+                <span class="field-error-msg" id="error-store-phone">Please enter a valid phone number starting with +265.</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="store-whatsapp">WhatsApp Contact Number*</label>
+                <input type="tel" id="store-whatsapp" class="form-input" placeholder="+265 999 123 456" required>
+                <div style="display: flex; align-items: center; gap: 6px; margin-top: 6px;">
+                  <input type="checkbox" id="whatsapp-same-check" style="width: 15px; height: 15px; cursor: pointer;">
+                  <label for="whatsapp-same-check" style="font-size: 0.72rem; font-weight: 700; color: var(--grey-800); cursor: pointer;">Same as Business Phone</label>
+                </div>
+                <span class="field-error-msg" id="error-store-whatsapp">Please enter a valid WhatsApp phone number starting with +265.</span>
+              </div>
+
+              <div style="margin-top: 8px;">
+                <label class="form-label">How do you want to receive earnings?*</label>
+                <p style="font-size: 0.7rem; color: var(--grey-600); margin-bottom: 10px; line-height: 1.4;">Malawian buyers pay on ShopEasy via Paychangu (Cards/Mobile Money). We send your monthly payouts directly to your selected mobile wallet.</p>
+                
+                <div class="payout-methods">
+                  <div class="payout-radio-card payout-radio-card--selected" data-method="airtel">
+                    <div class="payout-radio-info">
+                      <span class="payout-radio-logo">🔴</span>
+                      <div class="payout-radio-text">
+                        <span class="payout-radio-title">Airtel Money</span>
+                        <span class="payout-radio-desc">Malawi Airtel wallet payout</span>
+                      </div>
+                    </div>
+                    <div class="radio-option-circle" style="border-color: var(--primary);">
+                      <div class="radio-option-dot" style="display: block;"></div>
+                    </div>
+                  </div>
+
+                  <div class="payout-radio-card" data-method="mpamba">
+                    <div class="payout-radio-info">
+                      <span class="payout-radio-logo">🟢</span>
+                      <div class="payout-radio-text">
+                        <span class="payout-radio-title">TNM Mpamba</span>
+                        <span class="payout-radio-desc">Malawi Mpamba wallet payout</span>
+                      </div>
+                    </div>
+                    <div class="radio-option-circle">
+                      <div class="radio-option-dot"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-top: 4px;">
+                <label class="form-label" for="payout-number" id="payout-number-label">Airtel Money Account Number*</label>
+                <input type="tel" id="payout-number" class="form-input" placeholder="+265 999 123 456" required>
+                <span class="field-error-msg" id="error-payout-number">Please enter a valid +265 wallet phone number (e.g. +265 999 or +265 888 depending on network).</span>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-top: 16px;">
+              <button type="button" class="btn btn-auth-secondary" style="flex: 1;" id="btn-back-step-1">&larr; Back</button>
+              <button type="button" class="btn btn--primary" style="flex: 1;" id="btn-next-step-2">Next: ID Verify &rarr;</button>
+            </div>
+          </div>
+
+          <!-- STEP 3: ID VERIFICATION -->
+          <div class="wizard-step-panel" data-step="3">
+            <div class="card" style="padding: 16px; display: flex; flex-direction: column; gap: 14px;">
+              <h3 style="font-size: 0.95rem; font-weight: 850; color: var(--secondary); border-bottom: 1.5px solid var(--grey-100); padding-bottom: 8px;">Step 3: Identity Verification</h3>
+              <p style="font-size: 0.72rem; color: var(--grey-600); line-height: 1.4; background-color: var(--grey-100); padding: 8px; border-radius: var(--radius-sm);">Please upload high-quality photographs of your Malawi National ID card or passport details page. This is used strictly for safety vetting and fraud checks and is never shared with buyers.</p>
+
+              <div class="form-group">
+                <label class="form-label">Front of ID Document*</label>
+                <div class="upload-placeholder-box" id="id-front-upload-box">
+                  <span class="upload-placeholder-icon">🪪</span>
+                  <span class="upload-placeholder-lbl">Front Photo of National ID</span>
+                  <span class="upload-placeholder-sub">Click to select photo</span>
+                  <img id="id-front-preview" class="upload-preview-img" style="display: none;">
+                </div>
+                <input type="file" id="id-front-file-input" accept="image/*" style="display: none;">
+                <span class="field-error-msg" id="error-id-front">Please upload ID front photo.</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Back of ID Document*</label>
+                <div class="upload-placeholder-box" id="id-back-upload-box">
+                  <span class="upload-placeholder-icon">💳</span>
+                  <span class="upload-placeholder-lbl">Back Photo of National ID</span>
+                  <span class="upload-placeholder-sub">Click to select photo</span>
+                  <img id="id-back-preview" class="upload-preview-img" style="display: none;">
+                </div>
+                <input type="file" id="id-back-file-input" accept="image/*" style="display: none;">
+                <span class="field-error-msg" id="error-id-back">Please upload ID back photo.</span>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-top: 16px;">
+              <button type="button" class="btn btn-auth-secondary" style="flex: 1;" id="btn-back-step-2">&larr; Back</button>
+              <button type="button" class="btn btn--primary" style="flex: 1;" id="btn-next-step-3">Next: Review &rarr;</button>
+            </div>
+          </div>
+
+          <!-- STEP 4: REVIEW & SUBMIT -->
+          <div class="wizard-step-panel" data-step="4">
+            <div class="card" style="padding: 16px; display: flex; flex-direction: column; gap: 14px;">
+              <h3 style="font-size: 0.95rem; font-weight: 850; color: var(--secondary); border-bottom: 1.5px solid var(--grey-100); padding-bottom: 8px;">Step 4: Review Store Application</h3>
+
+              <div style="font-size: 0.78rem; display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed var(--grey-200); padding-bottom: 4px;">
+                  <span style="color: var(--grey-600); font-weight: 700;">Store Name:</span>
+                  <strong style="color: var(--secondary);" id="review-store-name">--</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed var(--grey-200); padding-bottom: 4px;">
+                  <span style="color: var(--grey-600); font-weight: 700;">Category:</span>
+                  <strong style="color: var(--secondary);" id="review-category">--</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed var(--grey-200); padding-bottom: 4px;">
+                  <span style="color: var(--grey-600); font-weight: 700;">City / Location:</span>
+                  <strong style="color: var(--secondary);" id="review-city">--</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed var(--grey-200); padding-bottom: 4px;">
+                  <span style="color: var(--grey-600); font-weight: 700;">Payout Details:</span>
+                  <strong style="color: var(--secondary);" id="review-payout">--</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed var(--grey-200); padding-bottom: 4px;">
+                  <span style="color: var(--grey-600); font-weight: 700;">Contacts:</span>
+                  <strong style="color: var(--secondary);" id="review-contacts">--</strong>
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: flex-start; gap: 8px; margin-top: 10px;">
+                <input type="checkbox" id="terms-checkbox" style="width: 18px; height: 18px; cursor: pointer; margin-top: 2px;">
+                <label for="terms-checkbox" style="font-size: 0.74rem; font-weight: 700; color: var(--grey-800); cursor: pointer; line-height: 1.4;">I agree to the ShopEasy Seller Terms & Conditions and understand that selling prohibited, counterfeit, or misleading products will result in permanent suspension of my wallet.</label>
+              </div>
+              <span class="field-error-msg" id="error-terms" style="margin-top: -6px;">You must agree to the Seller Terms to submit.</span>
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-top: 16px;">
+              <button type="button" class="btn btn-auth-secondary" style="flex: 1;" id="btn-back-step-3">&larr; Back</button>
+              <button type="submit" class="btn btn--primary" style="flex: 1; background-color: var(--danger);" id="btn-submit-app">Submit Application</button>
+            </div>
+          </div>
+
+        </form>
+      </div>
     </main>
   </div>
 

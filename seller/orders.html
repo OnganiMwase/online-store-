@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orders Fulfillment - ShopEasy</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/pages/seller.css">
+  <style>
+    /* Order Management CSS */
+    .order-tabs {
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      border-bottom: 2px solid var(--grey-200);
+      margin-bottom: 16px;
+      padding-bottom: 2px;
+    }
+    .order-tab-item {
+      padding: 10px 14px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: var(--grey-600);
+      white-space: nowrap;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      position: relative;
+    }
+    .order-tab-item.active {
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+    .badge-unread-count {
+      position: absolute;
+      top: 4px;
+      right: -2px;
+      background: var(--danger);
+      color: var(--white);
+      font-size: 0.55rem;
+      font-weight: 900;
+      min-width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1px;
+    }
+
+    /* Order Card modern styling */
+    .order-full-card {
+      background: var(--white);
+      border: 1.5px solid var(--grey-200);
+      border-radius: var(--radius);
+      margin-bottom: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: box-shadow var(--transition);
+    }
+    .order-card-header {
+      padding: 12px;
+      background: var(--grey-50);
+      border-bottom: 1px solid var(--grey-200);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .order-header-id {
+      font-size: 0.78rem;
+      font-weight: 850;
+      color: var(--secondary);
+    }
+    .order-header-date {
+      font-size: 0.72rem;
+      color: var(--grey-600);
+      font-weight: 600;
+    }
+    .order-card-body {
+      padding: 12px;
+      cursor: pointer;
+    }
+    .buyer-info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .buyer-name-lbl {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--secondary);
+    }
+    .buyer-phone-lbl {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--grey-600);
+    }
+    
+    /* Item thumbnails grid inside order list */
+    .ordered-thumbnails {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      margin-bottom: 10px;
+      padding-bottom: 4px;
+    }
+    .thumbnail-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 4px;
+      object-fit: cover;
+      border: 1px solid var(--grey-200);
+      flex-shrink: 0;
+    }
+
+    .order-totals-row {
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px dashed var(--grey-200);
+      padding-top: 10px;
+      margin-top: 6px;
+    }
+    .order-type-badge {
+      font-size: 0.7rem;
+      font-weight: 800;
+      background: var(--grey-100);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    /* Accordion slide details */
+    .order-accordion-details {
+      display: none;
+      padding: 12px;
+      background: var(--grey-50);
+      border-top: 1.5px solid var(--grey-200);
+      font-size: 0.78rem;
+      color: var(--grey-800);
+    }
+    .order-accordion-details.active {
+      display: block;
+    }
+
+    /* Tracking text input panel on processing transition */
+    .tracking-note-box {
+      margin-top: 8px;
+      padding: 8px;
+      background: var(--white);
+      border: 1px solid var(--grey-300);
+      border-radius: 6px;
+      display: none;
+    }
+    .tracking-note-box.active {
+      display: block;
+    }
+
+    .dispute-panel {
+      background: #FFF5F5;
+      border: 1.5px solid #FFCDCD;
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      margin: 8px 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- SELLER TOP HEADER -->
+    <header class="seller-header">
+      <div class="seller-brand" onclick="location.href='/seller/dashboard.html'" style="cursor: pointer;">
+        <div class="seller-logo">←</div>
+        <span class="seller-title">Orders Fulfillment</span>
+      </div>
+      <div class="seller-actions">
+        <!-- Spacer or custom layout -->
+      </div>
+    </header>
+
+    <main class="content" style="padding: 16px 12px 30px 12px;">
+      
+      <!-- Status tab filters -->
+      <div class="order-tabs">
+        <div class="order-tab-item active" data-tab="new">
+          New
+          <span class="badge-unread-count" id="badge-new-count" style="display: none;">0</span>
+        </div>
+        <div class="order-tab-item" data-tab="processing">Processing</div>
+        <div class="order-tab-item" data-tab="ready">Ready</div>
+        <div class="order-tab-item" data-tab="completed">Completed</div>
+        <div class="order-tab-item" data-tab="cancelled">Cancelled</div>
+        <div class="order-tab-item" data-tab="dispute">Disputes</div>
+      </div>
+
+      <!-- Orders container -->
+      <div id="orders-list-container" class="dashboard-list">
+        <!-- Skeletons load dynamic list -->
+        <div class="skeleton" style="width: 100%; height: 120px; border-radius: var(--radius);"></div>
+        <div class="skeleton" style="width: 100%; height: 120px; border-radius: var(--radius); margin-top: 10px;"></div>
+      </div>
+
+    </main>
+
+    <!-- Navigation spacer -->
+    <div style="height: 60px;"></div>
+  </div>
+
+  <script type="module" src="/js/pages/seller-orders.js"></script>
+</body>
+</html>

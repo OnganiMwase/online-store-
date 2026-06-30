@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>List Product - ShopEasy</title>
+  <title>Edit Product - ShopEasy</title>
   <link rel="stylesheet" href="/css/main.css">
   <link rel="stylesheet" href="/css/layout.css">
   <link rel="stylesheet" href="/css/components.css">
   <link rel="stylesheet" href="/css/pages/seller.css">
   <style>
-    /* Add product page custom designs */
+    /* Edit page custom designs */
     .section-header-title {
       font-size: 0.95rem;
       font-weight: 850;
@@ -175,14 +175,14 @@
     <header class="seller-header">
       <div class="seller-brand" onclick="location.href='/seller/products.html'" style="cursor: pointer;">
         <div class="seller-logo">←</div>
-        <span class="seller-title" id="form-page-title">Add Product</span>
+        <span class="seller-title" id="form-page-title">Edit Product</span>
       </div>
       <div class="top-actions-bar" style="justify-content: flex-end;">
         <button class="btn btn--outline btn--sm" id="btn-save-draft" type="button" style="padding: 6px 10px; font-size: 0.75rem; border-color: var(--grey-400); color: var(--grey-700);">
           Save Draft
         </button>
         <button class="btn btn--primary btn--sm" id="btn-publish" type="button" style="padding: 6px 12px; font-size: 0.75rem; font-weight: 800;">
-          Publish
+          Save Changes
         </button>
       </div>
     </header>
@@ -206,14 +206,14 @@
           
           <div class="form-group">
             <label class="form-label" for="prod-name">Title*</label>
-            <input type="text" id="prod-name" class="form-input" placeholder="e.g. Elegant Chitenje Wedding Dress" maxlength="100" required>
+            <input type="text" id="prod-name" class="form-input" placeholder="e.g. Samsung Galaxy Note 20" maxlength="100" required>
             <div class="textarea-counter" id="char-counter-title">0/100</div>
             <span class="error-msg" id="error-title" style="display: none; color: var(--danger); font-size: 0.75rem;"></span>
           </div>
 
           <div class="form-group">
             <label class="form-label" for="prod-desc">Description* <span style="font-size: 0.7rem; color: var(--grey-500);">(Min 50 chars)</span></label>
-            <textarea id="prod-desc" class="form-textarea" placeholder="Describe materials, sizing fit, condition, specific flaws, or pickup guidelines..." minlength="50" maxlength="2000" rows="4" required></textarea>
+            <textarea id="prod-desc" class="form-textarea" placeholder="Include product features, state/condition, size/fit, or flaws..." minlength="50" maxlength="2000" rows="4" required></textarea>
             <div class="textarea-counter" id="char-counter-desc">0/2000</div>
             <span class="error-msg" id="error-desc" style="display: none; color: var(--danger); font-size: 0.75rem;"></span>
           </div>
@@ -246,7 +246,7 @@
 
           <div class="form-group">
             <label class="form-label" for="prod-tags">Tags <span style="font-size: 0.7rem; color: var(--grey-500);">(Max 10 tags, comma-separated)</span></label>
-            <input type="text" id="prod-tags" class="form-input" placeholder="e.g. dress, wedding, local, chitenje">
+            <input type="text" id="prod-tags" class="form-input" placeholder="e.g. clothing, cotton, brand">
           </div>
         </section>
 

@@ -1,0 +1,307 @@
+/* ShopEasy Settings Styling */
+
+.settings-section {
+  background-color: var(--white);
+  border: 1.5px solid var(--grey-200);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.settings-section-header {
+  padding: 16px;
+  background-color: var(--grey-100);
+  border-bottom: 1px solid var(--grey-200);
+  font-size: 0.95rem;
+  font-weight: 850;
+  color: var(--secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--grey-100);
+  cursor: pointer;
+  background-color: var(--white);
+  transition: background-color var(--transition);
+}
+
+.settings-row:last-child {
+  border-bottom: none;
+}
+
+.settings-row:active {
+  background-color: var(--grey-100);
+}
+
+.settings-row-label {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--secondary);
+}
+
+.settings-row-value {
+  font-size: 0.82rem;
+  color: var(--grey-600);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.settings-expandable-form {
+  display: none;
+  padding: 16px;
+  border-top: 1px solid var(--grey-200);
+  background-color: #FAFAFA;
+}
+
+.settings-expandable-form--visible {
+  display: block;
+}
+
+/* Address Card Design */
+.address-card {
+  border: 1.5px solid var(--grey-200);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  margin-bottom: 12px;
+  background-color: var(--white);
+  position: relative;
+  transition: border-color var(--transition);
+}
+
+.address-card--default {
+  border-color: var(--success);
+  background-color: #F1F8E9;
+}
+
+.address-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.address-name {
+  font-weight: 800;
+  font-size: 0.88rem;
+  color: var(--secondary);
+}
+
+.address-phone {
+  font-size: 0.82rem;
+  color: var(--grey-600);
+  font-weight: 600;
+}
+
+.address-body {
+  font-size: 0.82rem;
+  color: var(--grey-800);
+  line-height: 1.4;
+}
+
+.address-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--grey-200);
+}
+
+.address-action-btn {
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.address-action-btn--edit {
+  color: var(--primary);
+}
+
+.address-action-btn--delete {
+  color: var(--danger);
+}
+
+.address-action-btn--default {
+  color: var(--success);
+  text-decoration: underline;
+}
+
+.default-badge {
+  background-color: var(--success);
+  color: var(--white);
+  font-size: 0.64rem;
+  font-weight: 850;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Radio Choice List */
+.radio-sheet-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.radio-sheet-overlay--visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.radio-sheet {
+  background-color: var(--white);
+  border-top-left-radius: var(--radius);
+  border-top-right-radius: var(--radius);
+  padding: 20px 16px;
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  box-shadow: 0 -5px 25px rgba(0,0,0,0.15);
+  transform: translateY(100%);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.radio-sheet-overlay--visible .radio-sheet {
+  transform: translateY(0);
+}
+
+.radio-sheet-title {
+  font-size: 1.1rem;
+  font-weight: 850;
+  color: var(--secondary);
+  margin-bottom: 16px;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+
+.radio-option:active {
+  background-color: var(--grey-100);
+}
+
+.radio-option-text {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.radio-option-circle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--grey-400);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.radio-option--selected .radio-option-circle {
+  border-color: var(--primary);
+}
+
+.radio-option-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  display: none;
+}
+
+.radio-option--selected .radio-option-dot {
+  display: block;
+}
+
+/* Avatar edit layout */
+.settings-avatar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.settings-avatar-circle {
+  position: relative;
+  width: 76px;
+  height: 76px;
+  cursor: pointer;
+}
+
+.settings-avatar-img {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2.5px solid var(--primary-light);
+  background-color: var(--grey-200);
+}
+
+.settings-avatar-edit-icon {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background-color: var(--primary);
+  color: var(--white);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  border: 1.5px solid var(--white);
+}
+
+/* Field validation error styling */
+.field-error-msg {
+  color: var(--danger);
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 4px;
+  display: none;
+}
+
+.field-error-msg--active {
+  display: block;
+}
+
+.form-input--error {
+  border-color: var(--danger) !important;
+}
+
+.danger-zone-btn {
+  background: none;
+  color: var(--danger);
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-decoration: underline;
+  cursor: pointer;
+  display: block;
+  margin: 24px auto;
+  text-align: center;
+}

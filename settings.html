@@ -7,12 +7,13 @@
   <link rel="stylesheet" href="/css/main.css">
   <link rel="stylesheet" href="/css/layout.css">
   <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/pages/settings.css">
 </head>
 <body>
   <div class="app-container">
     <!-- Header Bar -->
     <header class="header">
-      <button class="header__btn" onclick="history.back()" style="display: flex;">
+      <button class="header__btn" id="settings-back-btn" style="display: flex;">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg>
       </button>
       <h2 class="modal__title">Settings</h2>
@@ -20,100 +21,264 @@
     </header>
 
     <main class="content">
-      <form id="settings-form">
-        <section class="section">
-          <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--secondary); margin-bottom: 12px;">Edit Profile Details</h3>
+      <!-- Loading Skeletons -->
+      <div id="settings-loading" style="padding: 20px 0;">
+        <div class="skeleton" style="width: 100%; height: 60px; border-radius: var(--radius); margin-bottom: 12px;"></div>
+        <div class="skeleton" style="width: 100%; height: 60px; border-radius: var(--radius); margin-bottom: 12px;"></div>
+        <div class="skeleton" style="width: 100%; height: 60px; border-radius: var(--radius); margin-bottom: 12px;"></div>
+      </div>
+
+      <!-- Settings Panel Content (Rendered dynamically) -->
+      <div id="settings-sections" style="display: none;">
+        
+        <!-- SECTION 1: PROFILE -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <span>👤</span> <span data-i18n="profile">Profile Details</span>
+          </div>
           
-          <div class="card" style="padding: 14px; display: flex; flex-direction: column; gap: 12px;">
-            <div class="form-group">
-              <label class="form-label" for="settings-name">Full Name</label>
-              <input type="text" id="settings-name" class="form-input" required autocomplete="name">
+          <div class="settings-row" id="toggle-profile-row">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <img id="row-profile-avatar" src="https://api.dicebear.com/7.x/initials/svg?seed=S" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover;">
+              <div style="display: flex; flex-direction: column;">
+                <span class="settings-row-label" id="row-profile-name">ShopEasy Member</span>
+                <span class="settings-row-value" id="row-profile-email" style="font-size: 0.76rem;">member@shopeasy.com</span>
+              </div>
             </div>
+            <span style="font-size: 1.25rem; color: var(--grey-400);">&#9662;</span>
+          </div>
 
-            <div class="form-group">
-              <label class="form-label" for="settings-phone">Phone Number</label>
-              <input type="tel" id="settings-phone" class="form-input" required autocomplete="tel">
-            </div>
+          <!-- EDIT PROFILE FORM (Expands on tap) -->
+          <div class="settings-expandable-form" id="form-profile-container">
+            <form id="edit-profile-form" novalidate>
+              <div class="settings-avatar-container">
+                <div class="settings-avatar-circle" id="settings-avatar-click">
+                  <img class="settings-avatar-img" id="settings-avatar-preview" src="https://api.dicebear.com/7.x/initials/svg?seed=S" alt="Profile Preview">
+                  <div class="settings-avatar-edit-icon">✏️</div>
+                </div>
+                <input type="file" id="settings-avatar-file" accept="image/*" style="display: none;">
+              </div>
 
-            <div class="form-group">
-              <label class="form-label" for="settings-city">Location / City</label>
-              <select id="settings-city" class="form-select" required autocomplete="address-level2">
-                <option value="Lilongwe">Lilongwe</option>
-                <option value="Blantyre">Blantyre</option>
-                <option value="Mzuzu">Mzuzu</option>
-                <option value="Zomba">Zomba</option>
-              </select>
-            </div>
-            
-            <div class="form-group">
-              <label class="form-label" for="settings-avatar">Profile Avatar URL</label>
-              <input type="url" id="settings-avatar" class="form-input" placeholder="https://example.com/avatar.png">
+              <div class="form-group">
+                <label class="form-label" for="settings-fullname">Full Name*</label>
+                <input type="text" id="settings-fullname" class="form-input" required autocomplete="name" placeholder="Enter full name">
+                <span class="field-error-msg" id="error-fullname">Full Name is required.</span>
+              </div>
+
+              <div class="form-group" style="margin-top: 12px;">
+                <label class="form-label" for="settings-phone">Phone Number</label>
+                <input type="tel" id="settings-phone" class="form-input" autocomplete="tel" placeholder="+265 888 12 34 56">
+                <span class="field-error-msg" id="error-phone">Invalid phone format (+265 hint).</span>
+              </div>
+
+              <div class="form-group" style="margin-top: 12px;">
+                <label class="form-label" for="settings-city">Location / City*</label>
+                <select id="settings-city" class="form-select" required autocomplete="address-level2">
+                  <option value="Lilongwe">Lilongwe</option>
+                  <option value="Blantyre">Blantyre</option>
+                  <option value="Mzuzu">Mzuzu</option>
+                  <option value="Zomba">Zomba</option>
+                </select>
+                <span class="field-error-msg" id="error-city">City is required.</span>
+              </div>
+
+              <button type="submit" class="btn btn--primary btn--full" style="margin-top: 20px; background-color: var(--primary);" id="btn-save-profile">Save Changes</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- SECTION 2: DELIVERY ADDRESSES -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <span>📍</span> <span>Delivery Addresses</span>
+          </div>
+
+          <div class="settings-row" id="toggle-addresses-row">
+            <span class="settings-row-label">My Addresses</span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <button class="btn btn--primary" id="btn-add-address-trigger" style="padding: 4px 10px; font-size: 0.75rem; border-radius: var(--radius-sm); font-weight: 800;">+ Add New</button>
+              <span style="font-size: 1.25rem; color: var(--grey-400);">&#9662;</span>
             </div>
           </div>
-        </section>
 
-        <button type="submit" class="btn btn--primary btn--full" style="margin-top: 16px;" id="save-settings-btn">Save Changes</button>
-      </form>
+          <div class="settings-expandable-form" id="form-addresses-container">
+            <!-- Add / Edit Address Form Container -->
+            <div id="address-editor-block" style="display: none; border: 1.5px solid var(--grey-200); padding: 14px; border-radius: var(--radius-sm); margin-bottom: 16px; background-color: var(--white);">
+              <h4 id="address-form-title" style="font-size: 0.88rem; font-weight: 850; color: var(--secondary); margin-bottom: 12px;">Add Address</h4>
+              
+              <form id="address-action-form" novalidate>
+                <input type="hidden" id="address-edit-id">
+
+                <div class="form-group">
+                  <label class="form-label" for="address-fullname">Full Name*</label>
+                  <input type="text" id="address-fullname" class="form-input" required placeholder="Recipient's Name">
+                  <span class="field-error-msg" id="error-addr-name">Recipient name is required.</span>
+                </div>
+
+                <div class="form-group" style="margin-top: 10px;">
+                  <label class="form-label" for="address-phone">Phone Number (+265)*</label>
+                  <input type="tel" id="address-phone" class="form-input" required placeholder="+265 888 123 456">
+                  <span class="field-error-msg" id="error-addr-phone">Phone number with +265 is required.</span>
+                </div>
+
+                <div class="form-group" style="margin-top: 10px;">
+                  <label class="form-label" for="address-city">City*</label>
+                  <select id="address-city" class="form-select" required>
+                    <option value="Lilongwe">Lilongwe</option>
+                    <option value="Blantyre">Blantyre</option>
+                    <option value="Mzuzu">Mzuzu</option>
+                    <option value="Zomba">Zomba</option>
+                  </select>
+                  <span class="field-error-msg" id="error-addr-city">City is required.</span>
+                </div>
+
+                <div class="form-group" style="margin-top: 10px;">
+                  <label class="form-label" for="address-area">Area / Neighborhood*</label>
+                  <input type="text" id="address-area" class="form-input" required placeholder="e.g. Area 18, Chinyonga, Mzuzu Ginnery">
+                  <span class="field-error-msg" id="error-addr-area">Area or Neighborhood is required.</span>
+                </div>
+
+                <div class="form-group" style="margin-top: 10px;">
+                  <label class="form-label" for="address-landmark">Landmark / Directions</label>
+                  <input type="text" id="address-landmark" class="form-input" placeholder="e.g. Near Area 18 Clinic (Optional)">
+                </div>
+
+                <div class="form-group" style="margin-top: 12px; display: flex; align-items: center; gap: 8px;">
+                  <input type="checkbox" id="address-default-check" style="width: 16px; height: 16px; cursor: pointer;">
+                  <label for="address-default-check" style="font-size: 0.82rem; font-weight: 700; color: var(--secondary); cursor: pointer;">Set as default delivery address</label>
+                </div>
+
+                <div style="display: flex; gap: 8px; margin-top: 16px;">
+                  <button type="button" class="btn btn-auth-secondary" id="btn-cancel-address" style="flex: 1; padding: 10px; font-size: 0.82rem;" data-i18n="cancel">Cancel</button>
+                  <button type="submit" class="btn btn-auth-primary" id="btn-save-address" style="flex: 1; padding: 10px; font-size: 0.82rem;" data-i18n="save">Save</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- List of Saved Addresses -->
+            <div id="saved-addresses-list">
+              <div class="skeleton" style="width: 100%; height: 80px; border-radius: var(--radius-sm);"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 3: PREFERENCES -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <span>⚙️</span> <span>App Preferences</span>
+          </div>
+
+          <div class="settings-row" id="trigger-language-row">
+            <span class="settings-row-label">Language</span>
+            <span class="settings-row-value" id="current-language-display">English &rsaquo;</span>
+          </div>
+
+          <div class="settings-row" style="cursor: default;">
+            <span class="settings-row-label">Country / Region</span>
+            <span class="settings-row-value">Malawi 🇲🇼</span>
+          </div>
+
+          <div class="settings-row" style="cursor: default;">
+            <span class="settings-row-label">Currency</span>
+            <span class="settings-row-value">MWK (Malawian Kwacha)</span>
+          </div>
+        </div>
+
+        <!-- SECTION 4: SECURITY & ACCOUNT -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <span>🔐</span> <span>Account Security</span>
+          </div>
+
+          <div class="settings-row" id="btn-reset-password">
+            <span class="settings-row-label">Change Password</span>
+            <span class="settings-row-value">Send Reset Email &rsaquo;</span>
+          </div>
+        </div>
+
+        <!-- SECTION 5: INFORMATION -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <span>ℹ️</span> <span>Information</span>
+          </div>
+
+          <a href="/legal/privacy.html" class="settings-row">
+            <span class="settings-row-label">Privacy Policy</span>
+            <span class="settings-row-value">&rsaquo;</span>
+          </a>
+
+          <a href="/legal/terms.html" class="settings-row">
+            <span class="settings-row-label">Terms of Use</span>
+            <span class="settings-row-value">&rsaquo;</span>
+          </a>
+
+          <a href="/about.html" class="settings-row">
+            <span class="settings-row-label">About ShopEasy</span>
+            <span class="settings-row-value">&rsaquo;</span>
+          </a>
+
+          <div class="settings-row" style="cursor: default;">
+            <span class="settings-row-label">Version</span>
+            <span class="settings-row-value">1.0.0</span>
+          </div>
+        </div>
+
+        <!-- Made in Malawi Footer -->
+        <div style="text-align: center; margin: 30px 0 10px 0;">
+          <p style="font-size: 0.72rem; color: var(--grey-600); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Made in Malawi 🇲🇼</p>
+        </div>
+
+        <!-- DELETE ACCOUNT (Red Link) -->
+        <span class="danger-zone-btn" id="btn-delete-account-trigger">Delete ShopEasy Account</span>
+
+      </div>
     </main>
+
+    <!-- Language Picker Radio Sheet -->
+    <div class="radio-sheet-overlay" id="language-picker-overlay">
+      <div class="radio-sheet">
+        <h3 class="radio-sheet-title">Select App Language</h3>
+        
+        <div class="radio-option" id="lang-opt-en">
+          <span class="radio-option-text">English</span>
+          <div class="radio-option-circle">
+            <div class="radio-option-dot"></div>
+          </div>
+        </div>
+
+        <div class="radio-option" id="lang-opt-ny">
+          <span class="radio-option-text">Chichewa (Malaŵi)</span>
+          <div class="radio-option-circle">
+            <div class="radio-option-dot"></div>
+          </div>
+        </div>
+
+        <button class="btn btn-auth-secondary btn--full" style="margin-top: 16px;" id="btn-close-language-picker">Close</button>
+      </div>
+    </div>
+
+    <!-- Delete Account Custom Confirmation Overlay -->
+    <div class="confirm-overlay" id="delete-account-overlay">
+      <div class="confirm-box" style="max-width: 360px;">
+        <h3 class="confirm-title" style="color: var(--danger);">Delete ShopEasy Account?</h3>
+        <p class="confirm-desc" style="margin-bottom: 16px;">This action is permanent and cannot be undone. All your personal data, store items, wishlist, and conversations will be permanently deleted.</p>
+        
+        <div class="form-group" style="text-align: left; margin-bottom: 20px;">
+          <label class="form-label" for="delete-confirm-input" style="font-weight: 700; color: var(--secondary);">Type <span style="color: var(--danger); font-weight: 800;">DELETE</span> to confirm:</label>
+          <input type="text" id="delete-confirm-input" class="form-input" style="text-align: center; border-color: var(--grey-400); text-transform: uppercase;" placeholder="DELETE">
+          <span class="field-error-msg" id="error-delete-confirm">Verification word is incorrect.</span>
+        </div>
+
+        <div class="confirm-actions">
+          <button class="confirm-btn confirm-btn--cancel" id="delete-cancel-btn" data-i18n="cancel">Cancel</button>
+          <button class="confirm-btn confirm-btn--danger" id="delete-confirm-btn">Confirm Delete</button>
+        </div>
+      </div>
+    </div>
 
     <div id="nav-container"></div>
   </div>
 
-  <script type="module">
-    import { auth, db } from './js/firebase-config.js'
-    import { doc, getDoc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js'
-    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js'
-    import { showToast, showLoading, hideLoading, redirect } from './js/utils.js'
-
-    document.addEventListener('DOMContentLoaded', () => {
-      const form = document.getElementById('settings-form')
-      const saveBtn = document.getElementById('save-settings-btn')
-
-      onAuthStateChanged(auth, async (user) => {
-        if (!user) {
-          redirect('/login.html')
-          return
-        }
-
-        try {
-          const docSnap = await getDoc(doc(db, 'users', user.uid))
-          if (docSnap.exists()) {
-            const profile = docSnap.data()
-            document.getElementById('settings-name').value = profile.name || ''
-            document.getElementById('settings-phone').value = profile.phone || ''
-            document.getElementById('settings-city').value = profile.city || 'Lilongwe'
-            document.getElementById('settings-avatar').value = profile.avatar || ''
-          }
-        } catch (err) {
-          console.error(err)
-        }
-      })
-
-      if (form) {
-        form.addEventListener('submit', async (e) => {
-          e.preventDefault()
-          const user = auth.currentUser
-          if (!user) return
-
-          showLoading(saveBtn, 'Saving...')
-          try {
-            await updateDoc(doc(db, 'users', user.uid), {
-              name: document.getElementById('settings-name').value.trim(),
-              phone: document.getElementById('settings-phone').value.trim(),
-              city: document.getElementById('settings-city').value,
-              avatar: document.getElementById('settings-avatar').value.trim(),
-              updatedAt: serverTimestamp()
-            })
-            hideLoading(saveBtn)
-            showToast('Settings saved successfully!', 'success')
-            setTimeout(() => redirect('/account.html'), 1000)
-          } catch (err) {
-            hideLoading(saveBtn)
-            showToast('Failed to save settings.', 'danger')
-          }
-        })
-      }
-    })
-  </script>
+  <script type="module" src="/js/pages/settings.js"></script>
 </body>
 </html>
