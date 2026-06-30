@@ -1,17 +1,19 @@
+const BASE_PATH = self.location.pathname.replace(/sw\.js$/, '');
+
 const CACHE_NAME = 'shopeasy-v2'
 
 const STATIC_ASSETS = [
-  '/index.html',
-  '/login.html',
-  '/register.html',
-  '/shop.html',
-  '/cart.html',
-  '/account.html',
-  '/offline.html',
-  '/manifest.json',
-  '/assets/icons/icon-192.png',
-  '/assets/icons/icon-512.png'
-]
+  'index.html',
+  'login.html',
+  'register.html',
+  'shop.html',
+  'cart.html',
+  'account.html',
+  'offline.html',
+  'manifest.json',
+  'assets/icons/icon-192.png',
+  'assets/icons/icon-512.png'
+].map(path => BASE_PATH + path)
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -28,7 +30,7 @@ self.addEventListener('activate', (event) => {
         keys
           .filter(k => k !== CACHE_NAME)
           .map(k => caches.delete(k))
-      )
+       )
     ).then(() => self.clients.claim())
   )
 })
@@ -68,7 +70,7 @@ self.addEventListener('fetch', (event) => {
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
-        .catch(() => caches.match('/offline.html'))
+        .catch(() => caches.match(BASE_PATH + 'offline.html'))
     )
     return
   }

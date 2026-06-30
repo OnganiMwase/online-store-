@@ -257,7 +257,7 @@ async function loadTopSellersAndProducts() {
           const row = document.createElement('div')
           row.className = 'admin-list-item'
           row.style.cursor = 'pointer'
-          row.onclick = () => { location.href = `/admin/sellers.html` }
+          row.onclick = () => { location.href = 'sellers.html' }
           
           row.innerHTML = `
             <img src="${logo}" alt="${store.name}" onerror="this.src='https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100&q=80'">
@@ -293,7 +293,7 @@ async function loadTopSellersAndProducts() {
           const row = document.createElement('div')
           row.className = 'admin-list-item'
           row.style.cursor = 'pointer'
-          row.onclick = () => { location.href = `/admin/products.html` }
+          row.onclick = () => { location.href = 'products.html' }
           
           // Calculate revenue
           const totalRevenue = (prod.sold || 0) * (prod.price || 0)
@@ -342,7 +342,7 @@ function setupLiveRecentOrders() {
       const row = document.createElement('div')
       row.className = 'admin-list-item'
       row.style.cursor = 'pointer'
-      row.onclick = () => { location.href = `/admin/orders.html` }
+      row.onclick = () => { location.href = 'orders.html' }
 
       // Get store names list
       const storeName = order.storeName || order.items?.[0]?.storeName || 'ShopEasy Store'

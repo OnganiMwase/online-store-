@@ -38,8 +38,42 @@ export const getUrlParam = (param) => {
   return new URLSearchParams(window.location.search).get(param)
 }
 
+export const getRelativePath = (path) => {
+  if (!path.startsWith('/')) return path; // Already relative
+  
+  // Determine if we are currently inside a subfolder (seller or admin)
+  const currentPath = window.location.pathname;
+  const isInSeller = currentPath.includes('/seller/');
+  const isInAdmin = currentPath.includes('/admin/');
+  
+  if (path.startsWith('/seller/')) {
+    if (isInSeller) {
+      return path.replace(/^\/seller\//, '');
+    } else if (isInAdmin) {
+      return '../' + path.replace(/^\//, '');
+    } else {
+      return path.replace(/^\//, '');
+    }
+  } else if (path.startsWith('/admin/')) {
+    if (isInAdmin) {
+      return path.replace(/^\/admin\//, '');
+    } else if (isInSeller) {
+      return '../' + path.replace(/^\//, '');
+    } else {
+      return path.replace(/^\//, '');
+    }
+  } else {
+    // Root level file (e.g. /login.html, /index.html)
+    if (isInSeller || isInAdmin) {
+      return '../' + path.replace(/^\//, '');
+    } else {
+      return path.replace(/^\//, '');
+    }
+  }
+}
+
 export const redirect = (path) => {
-  window.location.href = path
+  window.location.href = getRelativePath(path)
 }
 
 export const showToast = (message, type = 'success') => {
