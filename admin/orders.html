@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Global Orders & Disputes - ShopEasy</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/pages/admin.css">
+  <style>
+    /* Accordion details */
+    .dispute-banner {
+      background-color: #FFF3E0;
+      border: 1.5px solid var(--warning);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 10px;
+      font-size: 0.82rem;
+      color: #E65100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .dispute-panel-block {
+      background-color: var(--grey-100);
+      border: 1px solid var(--grey-200);
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 10px;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body class="admin-body">
+  <div class="app-container">
+    
+    <!-- HEADER BAR -->
+    <header class="admin-header">
+      <div class="admin-header__brand">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-alert"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>ShopEasy Admin</span>
+        <span class="admin-header__badge">Portal</span>
+      </div>
+      <div class="admin-header__user">
+        <span id="admin-user-name" style="font-weight: 600; font-size: 0.9rem;">Administrator</span>
+        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80" alt="Admin Avatar" class="admin-header__avatar" id="admin-user-avatar">
+      </div>
+    </header>
+
+    <div class="admin-layout">
+      <!-- SIDEBAR -->
+      <aside class="admin-sidebar">
+        <a href="/admin/index.html" class="admin-nav-item" id="nav-dashboard">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          <span>Dashboard</span>
+        </a>
+        <a href="/admin/users.html" class="admin-nav-item" id="nav-users">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          <span>Users</span>
+        </a>
+        <a href="/admin/sellers.html" class="admin-nav-item" id="nav-sellers">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+          <span>Sellers <span class="badge badge--danger" style="margin-left: 5px; display: none;" id="badge-pending-sellers">0</span></span>
+        </a>
+        <a href="/admin/products.html" class="admin-nav-item" id="nav-products">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          <span>Products</span>
+        </a>
+        <a href="/admin/orders.html" class="admin-nav-item active" id="nav-orders">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+          <span>Orders <span class="badge badge--warning" style="margin-left: 5px; display: none;" id="badge-disputes">0</span></span>
+        </a>
+        <a href="/admin/settings.html" class="admin-nav-item" id="nav-settings">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span>Settings</span>
+        </a>
+        <a href="/admin/logs.html" class="admin-nav-item" id="nav-logs">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span>Admin Logs</span>
+        </a>
+        <a href="/index.html" class="admin-nav-item" style="margin-top: auto; border: 1.5px solid rgba(255, 255, 255, 0.1);">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          <span>Exit Admin</span>
+        </a>
+      </aside>
+
+      <!-- CONTENT -->
+      <main class="admin-content">
+        <div class="admin-section-header">
+          <div>
+            <h1 class="admin-section-title">Global Order Tracking & Disputes</h1>
+            <p class="admin-section-subtitle">Monitor orders across all sellers, filter listings, and resolve customer disputes</p>
+          </div>
+        </div>
+
+        <!-- FILTERS AND CONTROLS -->
+        <div class="admin-filters">
+          <!-- Status -->
+          <div class="form-group" style="margin-bottom: 0; min-width: 150px; flex: 1;">
+            <label for="filter-status">Filter by Status</label>
+            <select id="filter-status" style="padding: 8px 12px;">
+              <option value="all">All Statuses</option>
+              <option value="dispute_open">⚠️ Dispute Open</option>
+              <option value="refund_approved">💸 Refunded</option>
+              <option value="pending">Pending</option>
+              <option value="processing">Processing</option>
+              <option value="ready">Ready for Pickup</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+
+          <!-- Date inputs -->
+          <div class="form-group" style="margin-bottom: 0; min-width: 140px; flex: 1;">
+            <label for="filter-date-start">Start Date</label>
+            <input type="date" id="filter-date-start" style="padding: 6px 10px;">
+          </div>
+          <div class="form-group" style="margin-bottom: 0; min-width: 140px; flex: 1;">
+            <label for="filter-date-end">End Date</label>
+            <input type="date" id="filter-date-end" style="padding: 6px 10px;">
+          </div>
+
+          <!-- City -->
+          <div class="form-group" style="margin-bottom: 0; min-width: 140px; flex: 1;">
+            <label for="filter-city">City</label>
+            <select id="filter-city" style="padding: 8px 12px;">
+              <option value="all">All Cities</option>
+              <option value="Blantyre">Blantyre</option>
+              <option value="Lilongwe">Lilongwe</option>
+              <option value="Mzuzu">Mzuzu</option>
+              <option value="Zomba">Zomba</option>
+            </select>
+          </div>
+
+          <button class="btn btn--outline" id="btn-clear-filters" style="height: 38px; align-self: flex-end; font-size: 0.8rem; padding: 0 12px;">
+            Clear
+          </button>
+        </div>
+
+        <!-- ORDERS FEED -->
+        <div class="admin-list" id="global-orders-container">
+          <p style="text-align: center; color: var(--grey-600); padding: 32px;">Loading system orders...</p>
+        </div>
+
+        <!-- PAGINATION -->
+        <div class="admin-pagination">
+          <span class="admin-pagination__info" id="pagination-info">Showing 0-0 of 0 orders</span>
+          <div class="admin-pagination__btns">
+            <button class="btn btn--outline btn--sm" id="btn-prev-page" disabled>Previous</button>
+            <button class="btn btn--outline btn--sm" id="btn-next-page" disabled>Next</button>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- RESOLVE DISPUTE MODAL -->
+  <div class="modal" id="dispute-modal">
+    <div class="modal__container" style="max-width: 550px;">
+      <div class="modal__header">
+        <h3 class="modal__title" id="dispute-modal-title">Dispute Resolution Panel</h3>
+        <button class="modal__close" id="dispute-modal-close">&times;</button>
+      </div>
+      <div class="modal__body" id="dispute-modal-body">
+        <!-- Loaded dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/js/pages/admin-orders.js"></script>
+</body>
+</html>
