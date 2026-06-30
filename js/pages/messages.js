@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       `;
 
       document.getElementById('pinned-order-updates-row').addEventListener('click', () => {
-        redirect('/orders.html');
+        redirect('orders.html');
       });
 
     }, (error) => {
@@ -248,7 +248,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     `;
 
     item.addEventListener('click', () => {
-      redirect(`/chat.html?id=${convo.id}`);
+      redirect(`chat.html?id=${convo.id}`);
     });
 
     return item;
