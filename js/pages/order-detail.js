@@ -528,9 +528,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       buyAgainBtn.addEventListener('click', () => {
         const firstProduct = order.items?.[0];
         if (firstProduct?.id || firstProduct?.productId) {
-          redirect(`/product.html?id=${firstProduct.productId || firstProduct.id}`);
+          redirect(`product.html?id=${firstProduct.productId || firstProduct.id}`);
         } else {
-          redirect('/shop.html');
+          redirect('shop.html');
         }
       });
     }
@@ -543,7 +543,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           try {
             await deleteDoc(doc(db, 'orders', order.id));
             showToast("Order removed successfully.", "success");
-            setTimeout(() => redirect('/orders.html'), 1000);
+            setTimeout(() => redirect('orders.html'), 1000);
           } catch (err) {
             showToast("Could not remove order.", "danger");
             handleFirestoreError(err, OperationType.DELETE, `orders/${order.id}`);
@@ -556,7 +556,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const reportLink = dock.querySelector('.report-problem-link');
     if (reportLink) {
       reportLink.addEventListener('click', () => {
-        redirect(`/dispute.html?orderId=${order.id}`);
+        redirect(`dispute.html?orderId=${order.id}`);
       });
     }
 
