@@ -39,35 +39,42 @@ export const getUrlParam = (param) => {
 }
 
 export const getRelativePath = (path) => {
-  if (!path.startsWith('/')) return path; // Already relative
-  
-  // Determine if we are currently inside a subfolder (seller or admin)
+  // Clean up any accidental leading slashes just in case
+  const cleanPath = path.replace(/^\/+/, '');
+
+  // Determine where we are right now
   const currentPath = window.location.pathname;
-  const isInSeller = currentPath.includes('/seller/');
-  const isInAdmin = currentPath.includes('/admin/');
-  
-  if (path.startsWith('/seller/')) {
+  const isInSeller = currentPath.includes('seller/');
+  const isInAdmin = currentPath.includes('admin/');
+
+  // Scenario 1: Target path points to something inside the seller folder
+  if (cleanPath.startsWith('seller/')) {
     if (isInSeller) {
-      return path.replace(/^\/seller\//, '');
+      return cleanPath.replace(/^seller\//, ''); // Already inside, drop the folder prefix
     } else if (isInAdmin) {
-      return '../' + path.replace(/^\//, '');
+      return '../' + cleanPath; // Inside admin, step out first, then enter seller
     } else {
-      return path.replace(/^\//, '');
+      return cleanPath; // At root, go straight down
     }
-  } else if (path.startsWith('/admin/')) {
+  } 
+  
+  // Scenario 2: Target path points to something inside the admin folder
+  else if (cleanPath.startsWith('admin/')) {
     if (isInAdmin) {
-      return path.replace(/^\/admin\//, '');
+      return cleanPath.replace(/^admin\//, ''); // Already inside, drop the prefix
     } else if (isInSeller) {
-      return '../' + path.replace(/^\//, '');
+      return '../' + cleanPath; // Inside seller, step out first, then enter admin
     } else {
-      return path.replace(/^\//, '');
+      return cleanPath; // At root, go straight down
     }
-  } else {
-    // Root level file (e.g. /login.html, /index.html)
+  } 
+  
+  // Scenario 3: Target path is a root-level file (e.g., "index.html", "cart.html")
+  else {
     if (isInSeller || isInAdmin) {
-      return '../' + path.replace(/^\//, '');
+      return '../' + cleanPath; // If deep, step up to hit root files
     } else {
-      return path.replace(/^\//, '');
+      return cleanPath; // Already at root level
     }
   }
 }
