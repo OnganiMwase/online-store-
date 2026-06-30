@@ -35,9 +35,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (backBtn) {
     backBtn.addEventListener('click', () => {
       if (orderId) {
-        redirect(`/order-detail.html?id=${orderId}`);
+        redirect(`order-detail.html?id=${orderId}`);
       } else {
-        redirect('/orders.html');
+        redirect('orders.html');
       }
     });
   }
@@ -330,7 +330,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const okBtn = document.getElementById('dispute-success-back-btn');
       if (okBtn) {
         okBtn.addEventListener('click', () => {
-          redirect('/orders.html');
+          redirect('orders.html');
         });
       }
 
@@ -338,7 +338,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       
       // Auto redirect fallback
       setTimeout(() => {
-        redirect('/orders.html');
+        redirect('orders.html');
       }, 4000);
 
     } catch (err) {
