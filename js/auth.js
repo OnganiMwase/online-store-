@@ -28,7 +28,7 @@ export const initAuth = (options = {}) => {
         
         if (options.requireRole && 
             currentUserData?.role !== options.requireRole) {
-          redirect('/index.html')
+          redirect('index.html')
         }
         
       } else {
@@ -38,7 +38,7 @@ export const initAuth = (options = {}) => {
           sessionStorage.setItem(
             'redirectAfterLogin', window.location.href
           )
-          redirect('/login.html')
+          redirect('login.html')
         }
       }
       resolve({ user: currentUser, userData: currentUserData })
@@ -49,7 +49,7 @@ export const initAuth = (options = {}) => {
 export const logout = async () => {
   try {
     await signOut(auth)
-    redirect('/login.html')
+    redirect('login.html')
   } catch (err) {
     console.error("Logout failed: ", err)
   }
