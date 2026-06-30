@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!selectedItems || selectedItems.length === 0) {
     showToast("No items selected for checkout.", "warning");
-    redirect("/cart.html");
+    redirect("cart.html");
     return;
   }
 
@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
       showToast("Please sign in to complete your checkout.", "warning");
-      redirect("/login.html");
+      redirect("login.html");
       return;
     }
 
