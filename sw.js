@@ -1,4 +1,4 @@
-const CACHE_NAME = 'shopeasy-v1'
+const CACHE_NAME = 'shopeasy-v2'
 
 const STATIC_ASSETS = [
   '/index.html',
@@ -8,17 +8,9 @@ const STATIC_ASSETS = [
   '/cart.html',
   '/account.html',
   '/offline.html',
-  '/css/main.css',
-  '/css/layout.css',
-  '/css/components.css',
-  '/js/firebase-config.js',
-  '/js/auth.js',
-  '/js/utils.js',
-  '/js/ui.js',
-  '/js/i18n.js',
+  '/manifest.json',
   '/assets/icons/icon-192.png',
-  '/assets/icons/icon-512.png',
-  '/assets/images/logo.svg'
+  '/assets/icons/icon-512.png'
 ]
 
 self.addEventListener('install', (event) => {
@@ -44,11 +36,12 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url)
   
-  // Never cache Firebase API calls
+  // Never cache Firebase API or local API calls
   if (url.hostname.includes('firestore.googleapis.com') ||
       url.hostname.includes('firebase') ||
       url.hostname.includes('cloudfunctions.net') ||
-      url.hostname.includes('paychangu')) {
+      url.hostname.includes('paychangu') ||
+      url.pathname.startsWith('/api/')) {
     return
   }
   
