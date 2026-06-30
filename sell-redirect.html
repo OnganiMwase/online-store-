@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verifying Seller Profile - ShopEasy</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <style>
+    .redirect-loading-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background-color: var(--grey-50);
+      font-family: var(--font-sans);
+      padding: 24px;
+      text-align: center;
+    }
+    .redirect-spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid var(--grey-200);
+      border-top: 4px solid var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .redirect-title {
+      font-size: 1.2rem;
+      font-weight: 750;
+      color: var(--secondary);
+      margin-bottom: 8px;
+    }
+    .redirect-desc {
+      font-size: 0.9rem;
+      color: var(--grey-600);
+      max-width: 280px;
+    }
+  </style>
+</head>
+<body>
+  <div class="redirect-loading-wrapper">
+    <div class="redirect-spinner"></div>
+    <h2 class="redirect-title">Verifying Seller Profile</h2>
+    <p class="redirect-desc">Please wait while we check your credentials and load your store console...</p>
+  </div>
+
+  <script type="module" src="/js/pages/sell-redirect.js"></script>
+</body>
+</html>
