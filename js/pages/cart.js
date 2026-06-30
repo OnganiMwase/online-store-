@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
             "Please Sign In",
             "You must be signed in to access your shopping cart and complete purchases.",
             "Sign In",
-            "/login.html"
+            "login.html"
           )}
         </div>
       `;
@@ -342,7 +342,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Save selected items to sessionStorage
       sessionStorage.setItem("selectedCartItems", JSON.stringify(checkedItems));
-      redirect("/checkout.html");
+      redirect("checkout.html");
     });
   }
 });
