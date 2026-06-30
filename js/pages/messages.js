@@ -1,131 +1,256 @@
 /**
- * ShopEasy Messages Conversational Page Module
+ * ShopEasy Messages Inbox Page Controller
  */
 
-import { auth, db } from '../firebase-config.js'
+import { auth, db } from '../firebase-config.js';
 import { 
   collection, 
-  getDocs, 
   query, 
-  where,
-  orderBy 
-} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js'
+  where, 
+  orderBy, 
+  onSnapshot 
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js'
+import { injectHeaderAndNav } from '../ui.js';
+import { redirect, handleFirestoreError, OperationType } from '../utils.js';
+import { initAuth } from '../auth.js';
 
-import { injectHeaderAndNav, renderEmptyState, renderErrorState } from '../ui.js'
-import { redirect, handleFirestoreError, OperationType } from '../utils.js'
+document.addEventListener('DOMContentLoaded', async () => {
+  // 1. Inject bottom navigation bar (Highlight messages tab)
+  injectHeaderAndNav('messages');
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Inject Header and Nav
-  injectHeaderAndNav('messages')
+  const container = document.getElementById('conversations-container');
+  const pinnedContainer = document.getElementById('pinned-notifications-container');
 
-  const container = document.getElementById('conversations-container')
+  const unsubscribes = [];
 
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      redirect('/login.html')
-      return
-    }
-
-    try {
-      // Fetch as Buyer and as Seller and merge
-      const buyerQuery = query(collection(db, 'conversations'), where('buyerId', '==', user.uid))
-      const sellerQuery = query(collection(db, 'conversations'), where('sellerId', '==', user.uid))
-
-      const [buyerSnap, sellerSnap] = await Promise.all([
-        getDocs(buyerQuery),
-        getDocs(sellerQuery)
-      ])
-
-      const convosMap = new Map()
-      
-      const addConvo = (docSnap) => {
-        const convo = docSnap.data()
-        convo.id = docSnap.id
-        convosMap.set(convo.id, convo)
+  // Cleanup listeners on page leave to prevent memory leaks and unexpected background triggers
+  const cleanupListeners = () => {
+    unsubscribes.forEach(unsub => {
+      if (typeof unsub === 'function') {
+        try { unsub(); } catch (e) { console.warn('Failed to unsubscribe', e); }
       }
+    });
+  };
+  window.addEventListener('pagehide', cleanupListeners);
+  window.addEventListener('unload', cleanupListeners);
 
-      buyerSnap.forEach(addConvo)
-      sellerSnap.forEach(addConvo)
+  // 2. Auth Guard
+  const authState = await initAuth({ requireAuth: true });
+  const currentUser = authState.user;
 
-      const conversations = Array.from(convosMap.values())
+  if (!currentUser) return; // Automatically redirected to /login.html by initAuth
 
-      // Sort by lastMessageTime desc
-      conversations.sort((a, b) => {
-        const dateA = a.lastMessageTime?.toDate ? a.lastMessageTime.toDate() : new Date(a.lastMessageTime || 0)
-        const dateB = b.lastMessageTime?.toDate ? b.lastMessageTime.toDate() : new Date(b.lastMessageTime || 0)
-        return dateB - dateA
-      })
+  // 3. Pinned Order Notifications Thread
+  setupPinnedOrderNotifications(currentUser.uid);
 
-      container.innerHTML = ''
+  // 4. Load Seller/Buyer Conversations (Real-time Dual Snapshot)
+  setupRealtimeConversations(currentUser);
 
-      if (conversations.length === 0) {
-        container.innerHTML = renderEmptyState(
-          'messageSquare',
-          'No Chats Yet',
-          'Messages with sellers about product details and delivery agreements appear here.',
-          'Browse Products',
-          '/shop.html'
-        )
-        return
-      }
+  /**
+   * Listen to Order Update Notifications
+   */
+  function setupPinnedOrderNotifications(uid) {
+    const notificationsPath = 'notifications';
+    const notQuery = query(
+      collection(db, notificationsPath),
+      where('recipientId', '==', uid),
+      where('type', '==', 'order_update'),
+      where('read', '==', false)
+    );
 
-      for (const convo of conversations) {
-        // Resolve contact details
-        const otherUserId = convo.buyerId === user.uid ? convo.sellerId : convo.buyerId
-        let contactName = 'ShopEasy User'
+    const unsubNotif = onSnapshot(notQuery, (snapshot) => {
+      const unreadCount = snapshot.size;
+
+      pinnedContainer.innerHTML = `
+        <div class="pinned-updates" id="pinned-order-updates-row">
+          <div class="pinned-updates__icon">📦</div>
+          <div class="pinned-updates__info">
+            <div class="pinned-updates__title">Order Updates</div>
+            <div class="pinned-updates__desc">Track your orders and get status updates</div>
+          </div>
+          ${unreadCount > 0 ? `<div class="pinned-updates__badge">${unreadCount}</div>` : ''}
+        </div>
+      `;
+
+      document.getElementById('pinned-order-updates-row').addEventListener('click', () => {
+        redirect('/orders.html');
+      });
+
+    }, (error) => {
+      console.warn("Could not load real-time order notifications count:", error);
+      handleFirestoreError(error, OperationType.LIST, notificationsPath);
+    });
+
+    unsubscribes.push(unsubNotif);
+  }
+
+  /**
+   * Set up real-time bidirectional stream of conversations
+   */
+  function setupRealtimeConversations(user) {
+    const conversationsPath = 'conversations';
+
+    // We fetch two separate real-time queries (one where user is Buyer, one where user is Seller)
+    // and merge them in-memory. This bypasses the need for compound Firestore OR index generation.
+    const buyerQuery = query(
+      collection(db, conversationsPath),
+      where('buyerId', '==', user.uid)
+    );
+
+    const sellerQuery = query(
+      collection(db, conversationsPath),
+      where('sellerId', '==', user.uid)
+    );
+
+    const conversationMap = new Map();
+
+    const renderMergedConversations = () => {
+      // Sort conversations by lastMessageAt or lastMessageTime descending
+      const sortedConvos = Array.from(conversationMap.values()).sort((a, b) => {
+        const timeA = a.lastMessageAt || a.lastMessageTime || a.createdAt;
+        const timeB = b.lastMessageAt || b.lastMessageTime || b.createdAt;
         
-        try {
-          // Quick fetch name of the other user
-          const otherUserSnap = await getDocs(query(collection(db, 'users'), where('uid', '==', otherUserId)))
-          if (!otherUserSnap.empty) {
-            contactName = otherUserSnap.docs[0].data().name || 'ShopEasy User'
-          }
-        } catch (err) {
-          console.warn('Failed to resolve name for contact', otherUserId)
-        }
+        const dateA = timeA?.toDate ? timeA.toDate() : new Date(timeA || 0);
+        const dateB = timeB?.toDate ? timeB.toDate() : new Date(timeB || 0);
+        return dateB - dateA;
+      });
 
-        container.appendChild(renderConvoItem(convo, contactName, user.uid))
+      if (sortedConvos.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 48px 16px; display: flex; flex-direction: column; align-items: center; gap: 12px; color: var(--grey-600);">
+            <div style="font-size: 3.5rem; line-height: 1;">💬</div>
+            <h3 style="font-size: 1.15rem; font-weight: 850; color: var(--secondary); margin: 0;">No conversations yet</h3>
+            <p style="font-size: 0.8rem; max-width: 260px; line-height: 1.4; color: var(--grey-600); margin: 0;">Message a seller from any product page</p>
+          </div>
+        `;
+        return;
       }
 
-    } catch (error) {
-      container.innerHTML = renderErrorState('Failed to load chats.')
-      handleFirestoreError(error, OperationType.LIST, 'conversations')
-    }
-  })
+      container.innerHTML = '';
+      sortedConvos.forEach(convo => {
+        container.appendChild(renderConvoRow(convo, user.uid));
+      });
+    };
 
-  // Helper row renderer
-  const renderConvoItem = (convo, name, uid) => {
-    const item = document.createElement('div')
+    // Buyer side subscription
+    const unsubBuyer = onSnapshot(buyerQuery, (snapshot) => {
+      snapshot.docChanges().forEach(change => {
+        const data = change.doc.data();
+        data.id = change.doc.id;
+        if (change.type === 'removed') {
+          conversationMap.delete(data.id);
+        } else {
+          conversationMap.set(data.id, data);
+        }
+      });
+      renderMergedConversations();
+    }, (error) => {
+      container.innerHTML = `<p style="text-align: center; color: var(--danger); font-size: 0.85rem; padding: 20px;">Could not sync conversations.</p>`;
+      handleFirestoreError(error, OperationType.LIST, conversationsPath);
+    });
+
+    // Seller side subscription
+    const unsubSeller = onSnapshot(sellerQuery, (snapshot) => {
+      snapshot.docChanges().forEach(change => {
+        const data = change.doc.data();
+        data.id = change.doc.id;
+        if (change.type === 'removed') {
+          conversationMap.delete(data.id);
+        } else {
+          conversationMap.set(data.id, data);
+        }
+      });
+      renderMergedConversations();
+    }, (error) => {
+      container.innerHTML = `<p style="text-align: center; color: var(--danger); font-size: 0.85rem; padding: 20px;">Could not sync conversations.</p>`;
+      handleFirestoreError(error, OperationType.LIST, conversationsPath);
+    });
+
+    unsubscribes.push(unsubBuyer, unsubSeller);
+  }
+
+  /**
+   * Helper to format conversation timestamp:
+   * HH:MM if today, DD MMM if older
+   */
+  function formatTime(timestamp) {
+    if (!timestamp) return 'Just now';
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
     
-    const isUnread = convo.unreadCount > 0 && convo.lastSenderId !== uid
-    item.className = `convo-item ${isUnread ? 'convo-item--unread' : ''}`
+    const now = new Date();
+    const isToday = date.getDate() === now.getDate() &&
+                    date.getMonth() === now.getMonth() &&
+                    date.getFullYear() === now.getFullYear();
 
-    const formattedTime = convo.lastMessageTime?.toDate 
-      ? convo.lastMessageTime.toDate().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-      : 'Recently'
+    if (isToday) {
+      return date.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+    } else {
+      return date.toLocaleDateString('en-US', {
+        day: 'numeric',
+        month: 'short'
+      });
+    }
+  }
 
-    const avatarSeed = encodeURIComponent(name)
-    const avatarUrl = `https://api.dicebear.com/7.x/initials/svg?seed=${avatarSeed}`
+  /**
+   * Render single conversation row element
+   */
+  function renderConvoRow(convo, currentUid) {
+    const item = document.createElement('div');
+
+    const isBuyer = convo.buyerId === currentUid;
+    
+    // Unread count tracking
+    const unreadCount = isBuyer 
+      ? (convo.unreadCountBuyer !== undefined ? convo.unreadCountBuyer : (convo.unreadCount || 0))
+      : (convo.unreadCountSeller !== undefined ? convo.unreadCountSeller : (convo.unreadCount || 0));
+
+    const isUnread = unreadCount > 0;
+    item.className = `convo-item ${isUnread ? 'convo-item--unread' : 'convo-item--read'}`;
+
+    // Name formatting (If I'm buyer -> display store/seller name, else display buyer name)
+    const displayName = isBuyer 
+      ? (convo.storeName || convo.sellerName || 'Local Seller') 
+      : (convo.buyerName || 'Malawi Buyer');
+
+    // Avatar Selection (use fallback dicebear if no logo provided)
+    const avatarUrl = isBuyer
+      ? (convo.storeAvatar || convo.sellerAvatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(displayName)}`)
+      : (convo.buyerAvatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(displayName)}`);
+
+    const rawTime = convo.lastMessageAt || convo.lastMessageTime || convo.createdAt;
+    const timeString = formatTime(rawTime);
+
+    // Limit preview message size to 45 chars
+    let messagePreview = convo.lastMessage || 'Sent a media attachment';
+    if (messagePreview.length > 45) {
+      messagePreview = messagePreview.slice(0, 42) + '...';
+    }
 
     item.innerHTML = `
-      <img src="${avatarUrl}" alt="Avatar" class="convo-item__avatar">
-      <div class="convo-item__info">
-        <div class="convo-item__title">
-          <span>${name}</span>
-          <span class="convo-item__time">${formattedTime}</span>
-        </div>
-        <div class="convo-item__msg">${convo.lastMessage || 'Sent a message'}</div>
-        ${convo.productName ? `<span class="convo-item__product">📦 ${convo.productName}</span>` : ''}
+      <div class="convo-item__avatar-container">
+        <img src="${avatarUrl}" alt="${displayName}" class="convo-item__avatar" referrerPolicy="no-referrer">
       </div>
-      ${isUnread ? '<div class="convo-item__unread-dot"></div>' : ''}
-    `
+      <div class="convo-item__info">
+        <div class="convo-item__header">
+          <span class="convo-item__name">${displayName}</span>
+          <span class="convo-item__time">${timeString}</span>
+        </div>
+        <div class="convo-item__msg">${messagePreview}</div>
+        ${convo.productName ? `<span class="convo-item__product" style="font-size: 0.68rem; padding: 2px 6px; background-color: var(--grey-200); border-radius: 4px; display: inline-block; margin-top: 4px; font-weight: 700; color: var(--grey-800);">🏷️ ${convo.productName}</span>` : ''}
+      </div>
+      ${isUnread ? `<div class="convo-item__badge">${unreadCount}</div>` : ''}
+    `;
 
     item.addEventListener('click', () => {
-      redirect(`/chat-room.html?id=${convo.id}&name=${encodeURIComponent(name)}`)
-    })
+      redirect(`/chat.html?id=${convo.id}`);
+    });
 
-    return item
+    return item;
   }
-})
+});

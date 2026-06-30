@@ -63,7 +63,7 @@ service cloud.firestore {
 
     function isValidMessage(data) {
       return data.senderId == request.auth.uid &&
-             data.text is string && data.text.size() <= 5000;
+             ((data.text is string && data.text.size() <= 5000) || (data.content is string && data.content.size() <= 10000));
     }
 
     function isValidOrder(data) {

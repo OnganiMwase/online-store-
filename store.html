@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Store Profile - ShopEasy</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <style>
+    .store-profile-header {
+      background: var(--white);
+      border-bottom: 1px solid var(--grey-200);
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 12px;
+    }
+    .store-profile-logo {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--primary-light);
+      box-shadow: var(--shadow-sm);
+      background-color: var(--grey-100);
+    }
+    .store-meta-info {
+      font-size: 0.8rem;
+      color: var(--grey-600);
+      font-weight: 600;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px;
+      align-items: center;
+    }
+    .store-actions {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      max-width: 320px;
+      margin-top: 6px;
+    }
+    .store-actions .btn {
+      flex: 1;
+      font-weight: 800;
+      font-size: 0.78rem;
+      padding: 10px 0;
+    }
+    .store-desc-section {
+      background: var(--white);
+      padding: 16px;
+      border-bottom: 1px solid var(--grey-200);
+    }
+    .products-header {
+      padding: 16px 16px 4px;
+      font-weight: 850;
+      font-size: 1rem;
+      color: var(--secondary);
+    }
+    .rating-star {
+      color: #FFB800;
+      font-weight: bold;
+    }
+    .btn--outline-following {
+      background-color: var(--primary-light);
+      border-color: var(--primary);
+      color: var(--primary) !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container" style="padding-bottom: 80px;">
+    <!-- Header Bar -->
+    <header class="header">
+      <button class="header__btn" onclick="history.back()" style="display: flex;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <h2 class="modal__title" id="store-title-header">Store Profile</h2>
+      <div style="width: 22px;"></div> <!-- Spacer -->
+    </header>
+
+    <main class="content">
+      <!-- Loading indicator -->
+      <div id="store-profile-loading" style="padding: 40px 16px; display: flex; flex-direction: column; gap: 16px;">
+        <div class="skeleton" style="width: 80px; height: 80px; border-radius: 50%; margin: 0 auto;"></div>
+        <div class="skeleton" style="width: 140px; height: 18px; margin: 0 auto; border-radius: 4px;"></div>
+        <div class="skeleton" style="width: 100%; height: 110px; border-radius: var(--radius); margin-top: 10px;"></div>
+        <div class="skeleton" style="width: 100%; height: 260px; border-radius: var(--radius);"></div>
+      </div>
+
+      <!-- Real store container -->
+      <div id="store-profile-container" style="display: none;">
+        <!-- Store details container -->
+        <div class="store-profile-header">
+          <img id="store-logo" src="" alt="Store Logo" class="store-profile-logo">
+          <div style="display: flex; flex-direction: column; gap: 4px; align-items: center;">
+            <h1 id="store-name" style="font-size: 1.35rem; font-weight: 900; color: var(--secondary); line-height: 1.2; letter-spacing: -0.5px;">Store Name</h1>
+            <div class="store-meta-info" id="store-meta">
+              <!-- Dynamically populated metadata -->
+            </div>
+            <div class="store-meta-info" style="color: var(--primary); margin-top: 2px;">
+              <span id="store-followers">0 followers</span>
+              <span>&bull;</span>
+              <span id="store-member-since">Member since --</span>
+            </div>
+          </div>
+
+          <div class="store-actions">
+            <button id="store-follow-btn" class="btn btn--primary">Follow</button>
+            <button id="store-message-btn" class="btn btn--outline">💬 Message</button>
+          </div>
+        </div>
+
+        <!-- Store Description -->
+        <div class="store-desc-section" id="store-description-block">
+          <h4 style="font-size: 0.8rem; font-weight: 800; color: var(--secondary); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px;">About Seller</h4>
+          <p id="store-description-text" style="font-size: 0.82rem; color: var(--grey-700); line-height: 1.5; font-weight: 500;">
+            This seller hasn't provided an introductory bio yet.
+          </p>
+        </div>
+
+        <!-- Store Listings Section -->
+        <div class="products-header">All Store Products</div>
+        <div style="padding: 0 16px 20px;">
+          <div class="grid-2" id="store-products-grid" style="margin-top: 8px;">
+            <!-- Injected product cards -->
+          </div>
+
+          <!-- Load More Button -->
+          <div style="display: flex; justify-content: center; margin-top: 16px;">
+            <button id="load-more-btn" class="btn btn--outline btn--sm" style="display: none; width: 100%; max-width: 200px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Load More</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="nav-container"></div>
+  </div>
+
+  <script type="module" src="/js/pages/store.js"></script>
+</body>
+</html>

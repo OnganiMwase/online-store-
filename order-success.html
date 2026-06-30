@@ -372,7 +372,7 @@
           const convSnap = await getDoc(convRef);
 
           if (convSnap.exists()) {
-            redirect(`/chat-room.html?id=${convId}&name=Seller`);
+            redirect(`/chat.html?id=${convId}&name=Seller`);
           } else {
             // Get seller profile details
             let sellerName = "Local Seller";
@@ -394,20 +394,28 @@
               sellerId: sellerId,
               sellerName: sellerName,
               lastMessage: `Hello! I just paid for Order #${orderId}. Please check and prepare the shipment.`,
+              lastMessageAt: serverTimestamp(),
               lastMessageTime: serverTimestamp(),
+              unreadCountBuyer: 0,
+              unreadCountSeller: 1,
               updatedAt: serverTimestamp()
             });
 
             // Set initial chat message
             await addDoc(collection(db, `conversations/${convId}/messages`), {
               senderId: currentUser.uid,
+              senderName: currentUser.displayName || "Buyer",
+              type: 'text',
+              content: `Hello! I just paid for Order #${orderId}. Please check and prepare the shipment.`,
               text: `Hello! I just paid for Order #${orderId}. Please check and prepare the shipment.`,
-              timestamp: serverTimestamp()
+              timestamp: serverTimestamp(),
+              createdAt: serverTimestamp(),
+              read: false
             });
 
             showToast("Starting conversation...", "success");
             setTimeout(() => {
-              redirect(`/chat-room.html?id=${convId}&name=${encodeURIComponent(sellerName)}`);
+              redirect(`/chat.html?id=${convId}&name=${encodeURIComponent(sellerName)}`);
             }, 800);
           }
         } catch (chatErr) {

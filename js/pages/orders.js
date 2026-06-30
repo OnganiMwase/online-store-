@@ -392,7 +392,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           const convSnap = await getDoc(convRef);
 
           if (convSnap.exists()) {
-            redirect(`/chat-room.html?id=${convId}&name=${encodeURIComponent(storeName)}`);
+            redirect(`/chat.html?id=${convId}&name=${encodeURIComponent(storeName)}`);
           } else {
             // Setup conversation document
             await setDoc(convRef, {
@@ -402,17 +402,25 @@ document.addEventListener('DOMContentLoaded', async () => {
               sellerId: sellerId,
               sellerName: storeName,
               lastMessage: `Hello, I'm contacting you regarding Order #${order.id.substring(0, 8).toUpperCase()}`,
+              lastMessageAt: serverTimestamp(),
               lastMessageTime: serverTimestamp(),
+              unreadCountBuyer: 0,
+              unreadCountSeller: 1,
               updatedAt: serverTimestamp()
             });
 
             await addDoc(collection(db, `conversations/${convId}/messages`), {
               senderId: authUser.uid,
+              senderName: authUserData?.name || authUser.displayName || "Buyer",
+              type: 'text',
+              content: `Hello, I'm contacting you regarding Order #${order.id.substring(0, 8).toUpperCase()}`,
               text: `Hello, I'm contacting you regarding Order #${order.id.substring(0, 8).toUpperCase()}`,
-              timestamp: serverTimestamp()
+              timestamp: serverTimestamp(),
+              createdAt: serverTimestamp(),
+              read: false
             });
 
-            redirect(`/chat-room.html?id=${convId}&name=${encodeURIComponent(storeName)}`);
+            redirect(`/chat.html?id=${convId}&name=${encodeURIComponent(storeName)}`);
           }
         } catch (err) {
           hideLoading(contactBtn);

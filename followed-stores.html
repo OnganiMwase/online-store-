@@ -7,23 +7,128 @@
   <link rel="stylesheet" href="/css/main.css">
   <link rel="stylesheet" href="/css/layout.css">
   <link rel="stylesheet" href="/css/components.css">
+  <style>
+    .followed-store-card {
+      background: var(--white);
+      border-radius: 8px;
+      border: 1.5px solid var(--grey-200);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+    }
+    .store-badge {
+      background-color: var(--primary-light);
+      color: var(--primary);
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 4px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      align-self: flex-start;
+      margin-top: -4px;
+    }
+    .latest-products-scroll {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+    .latest-products-scroll::-webkit-scrollbar {
+      display: none;
+    }
+    .mini-product-card {
+      flex: 0 0 100px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      cursor: pointer;
+    }
+    .mini-product-card img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1.5px solid var(--grey-200);
+    }
+    .mini-product-card .mini-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .mini-product-card .mini-price {
+      font-size: 0.72rem;
+      font-weight: 850;
+      color: var(--primary);
+    }
+    .discover-scroll-container {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      scrollbar-width: none;
+    }
+    .discover-scroll-container::-webkit-scrollbar {
+      display: none;
+    }
+    .discover-store-card {
+      flex: 0 0 160px;
+      background: var(--white);
+      border-radius: 8px;
+      border: 1.5px solid var(--grey-200);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 8px;
+    }
+    .store-logo-img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid var(--grey-200);
+      background-color: var(--grey-100);
+    }
+    .rating-star {
+      color: #FFB800;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-  <div class="app-container">
+  <div class="app-container" style="padding-bottom: 80px;">
     <!-- Header Bar -->
     <header class="header">
       <button class="header__btn" onclick="history.back()" style="display: flex;">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg>
       </button>
-      <h2 class="modal__title">Followed Stores</h2>
+      <h2 class="modal__title" id="followed-stores-title">🏪 Followed Stores (0)</h2>
       <div style="width: 22px;"></div> <!-- Spacer -->
     </header>
 
-    <main class="content">
-      <div class="followed-stores-list" id="followed-stores-container" style="display: flex; flex-direction: column; gap: 12px;">
-        <!-- Skeletons loader -->
-        <div class="skeleton" style="width: 100%; height: 74px; border-radius: var(--radius);"></div>
-        <div class="skeleton" style="width: 100%; height: 74px; border-radius: var(--radius);"></div>
+    <main class="content" style="padding: 16px; display: flex; flex-direction: column; gap: 20px;">
+      <!-- Followed stores container -->
+      <div id="followed-stores-container" style="display: flex; flex-direction: column; gap: 16px;">
+        <!-- Loaded skeletons -->
+        <div class="skeleton" style="width: 100%; height: 160px; border-radius: var(--radius);"></div>
+        <div class="skeleton" style="width: 100%; height: 160px; border-radius: var(--radius);"></div>
+      </div>
+
+      <!-- Discover Stores Section (shown in empty state, or as optional promo) -->
+      <div id="discover-stores-section" style="display: none;">
+        <h3 style="font-size: 1rem; font-weight: 850; color: var(--secondary); margin-bottom: 4px;">Discover stores on ShopEasy</h3>
+        <p style="font-size: 0.75rem; color: var(--grey-600); margin-bottom: 12px; font-weight: 600;">Check out the most popular sellers in your local area</p>
+        
+        <div class="discover-scroll-container" id="discover-stores-list">
+          <!-- Populated dynamically -->
+        </div>
       </div>
     </main>
 
