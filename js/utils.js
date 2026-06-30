@@ -1,4 +1,4 @@
-/**
+/** 
  * ShopEasy Utility Helper Functions
  */
 
