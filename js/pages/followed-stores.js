@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       </div>
 
       <div style="display: flex; justify-content: flex-end; margin-top: -4px;">
-        <a href="/store.html?id=${storeId}" style="font-size: 0.75rem; font-weight: 800; color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 4px;">
+        <a href="store.html?id=${storeId}" style="font-size: 0.75rem; font-weight: 800; color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 4px;">
           View store &rarr;
         </a>
       </div>
@@ -195,13 +195,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Bind navigations to mini product clicks
     card.querySelectorAll('.mini-product-card').forEach(pCard => {
       pCard.addEventListener('click', () => {
-        redirect(`/product.html?id=${pCard.dataset.id}`);
+        redirect(`product.html?id=${pCard.dataset.id}`);
       });
     });
 
     // Bind goto store info clicks
     card.querySelector('.goto-store-btn').addEventListener('click', () => {
-      redirect(`/store.html?id=${storeId}`);
+      redirect(`store.html?id=${storeId}`);
     });
 
     // Bind Unfollow Click Action
