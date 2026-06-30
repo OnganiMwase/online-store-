@@ -21,6 +21,62 @@ try {
   console.error("Error loading firebase-applet-config.json:", err);
 }
 
+// Copy PWA Icons automatically if they don't exist
+try {
+  const assetsIconsDir = path.join(process.cwd(), "assets", "icons");
+  if (!fs.existsSync(assetsIconsDir)) {
+    fs.mkdirSync(assetsIconsDir, { recursive: true });
+  }
+  const icon512Path = path.join(assetsIconsDir, "icon-512.png");
+  const icon192Path = path.join(assetsIconsDir, "icon-192.png");
+  const icon96Path = path.join(assetsIconsDir, "icon-96.png");
+
+  if (fs.existsSync(icon512Path)) {
+    if (!fs.existsSync(icon192Path)) {
+      fs.copyFileSync(icon512Path, icon192Path);
+      console.log("Automatically copied icon-512.png to icon-192.png");
+    }
+    if (!fs.existsSync(icon96Path)) {
+      fs.copyFileSync(icon512Path, icon96Path);
+      console.log("Automatically copied icon-512.png to icon-96.png");
+    }
+  }
+
+  // Copy sw.js, manifest.json, and assets/icons to dist if dist exists
+  const distPath = path.join(process.cwd(), "dist");
+  if (fs.existsSync(distPath)) {
+    // Copy sw.js
+    const swPath = path.join(process.cwd(), "sw.js");
+    if (fs.existsSync(swPath)) {
+      fs.copyFileSync(swPath, path.join(distPath, "sw.js"));
+      console.log("Automatically copied sw.js to dist/sw.js");
+    }
+    // Copy manifest.json
+    const manifestPath = path.join(process.cwd(), "manifest.json");
+    if (fs.existsSync(manifestPath)) {
+      fs.copyFileSync(manifestPath, path.join(distPath, "manifest.json"));
+      console.log("Automatically copied manifest.json to dist/manifest.json");
+    }
+    // Copy assets/icons to dist/assets/icons
+    const distIconsDir = path.join(distPath, "assets", "icons");
+    if (!fs.existsSync(distIconsDir)) {
+      fs.mkdirSync(distIconsDir, { recursive: true });
+    }
+    if (fs.existsSync(icon512Path)) {
+      fs.copyFileSync(icon512Path, path.join(distIconsDir, "icon-512.png"));
+    }
+    if (fs.existsSync(icon192Path)) {
+      fs.copyFileSync(icon192Path, path.join(distIconsDir, "icon-192.png"));
+    }
+    if (fs.existsSync(icon96Path)) {
+      fs.copyFileSync(icon96Path, path.join(distIconsDir, "icon-96.png"));
+    }
+    console.log("Successfully synchronized PWA asset configurations into dist/");
+  }
+} catch (err) {
+  console.error("Error copying PWA icons or static files:", err);
+}
+
 // Initialize Firebase Admin
 if (getApps().length === 0) {
   initializeApp({

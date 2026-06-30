@@ -361,3 +361,53 @@
 .skeleton-price {
   width: 40%;
 }
+
+/* --- INSTALL BANNER --- */
+.install-banner {
+  position: fixed;
+  bottom: 64px; /* Above the bottom nav bar */
+  left: 16px;
+  right: 16px;
+  background-color: var(--white);
+  border: 1px solid var(--grey-200);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 1000;
+  animation: slide-up-install 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 640px) {
+  .install-banner {
+    left: auto;
+    right: 16px;
+    width: 360px;
+    bottom: 16px;
+  }
+}
+
+.install-banner__content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.install-banner__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+@keyframes slide-up-install {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

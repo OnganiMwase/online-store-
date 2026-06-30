@@ -196,6 +196,63 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('error-id-back').classList.remove('field-error-msg--active')
   })
 
+  // Compression & validation helper
+  const compressImage = (file) => {
+    return new Promise((resolve, reject) => {
+      const MAX_SIZE = 2 * 1024 * 1024; // 2MB limit
+      if (file.size > MAX_SIZE) {
+        reject(new Error(`File "${file.name}" exceeds the 2MB size limit. Please choose a smaller file.`));
+        return;
+      }
+      if (!file.type.startsWith('image/')) {
+        reject(new Error(`File "${file.name}" is not a valid image format.`));
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          const MAX_DIM = 1024; // Keep file size under ~100kb
+          if (width > MAX_DIM || height > MAX_DIM) {
+            if (width > height) {
+              height = Math.round((height * MAX_DIM) / width);
+              width = MAX_DIM;
+            } else {
+              width = Math.round((width * MAX_DIM) / height);
+              height = MAX_DIM;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            canvas.toBlob((blob) => {
+              if (blob) {
+                resolve(blob);
+              } else {
+                resolve(file); // fallback
+              }
+            }, 'image/jpeg', 0.75);
+          } else {
+            resolve(file);
+          }
+        };
+        img.onerror = () => reject(new Error('Failed to load image for compression.'));
+        img.src = e.target.result;
+      };
+      reader.onerror = () => reject(new Error('Failed to read image file.'));
+      reader.readAsDataURL(file);
+    });
+  };
+
   function setupImmediateUpload(boxId, inputId, previewId, storagePath, callback) {
     const box = document.getElementById(boxId)
     const input = document.getElementById(inputId)
@@ -208,8 +265,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         const file = e.target.files[0]
         if (!file) return
 
-        if (!file.type.startsWith('image/')) {
-          showToast('Invalid file format. Select a picture.', 'danger')
+        let compressedBlob;
+        try {
+          compressedBlob = await compressImage(file)
+        } catch (validationErr) {
+          showToast(validationErr.message, 'danger')
           return
         }
 
@@ -219,7 +279,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         try {
           const fileRef = ref(storage, storagePath)
-          await uploadBytes(fileRef, file)
+          await uploadBytes(fileRef, compressedBlob, {
+            contentType: 'image/jpeg'
+          })
           const downloadUrl = await getDownloadURL(fileRef)
 
           // Show preview

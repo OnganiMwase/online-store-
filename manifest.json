@@ -1,21 +1,39 @@
 {
-  "name": "ShopEasy Malawi",
+  "name": "ShopEasy",
   "short_name": "ShopEasy",
-  "description": "Local Malawian online marketplace website.",
+  "description": "Buy and sell locally across Malawi",
   "start_url": "/index.html",
   "display": "standalone",
-  "background_color": "#FFFFFF",
+  "orientation": "portrait-primary",
   "theme_color": "#E53935",
+  "background_color": "#ffffff",
+  "lang": "en",
+  "dir": "ltr",
   "icons": [
     {
-      "src": "/assets/icons/icon-192.png",
+      "src": "assets/icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "/assets/icons/icon-512.png",
+      "src": "assets/icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["shopping", "lifestyle"],
+  "shortcuts": [
+    {
+      "name": "Browse Shop",
+      "url": "/shop.html",
+      "icons": [{ "src": "assets/icons/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "My Orders",
+      "url": "/orders.html",
+      "icons": [{ "src": "assets/icons/icon-96.png", "sizes": "96x96" }]
     }
   ]
 }

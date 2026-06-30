@@ -198,3 +198,72 @@ window.toggleWishlist = function(productId) {
     })
   }
 }
+
+// --- Service Worker Registration ---
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => {
+        console.log('ShopEasy Service Worker registered successfully with scope:', reg.scope)
+      })
+      .catch(err => {
+        console.error('ShopEasy Service Worker registration failed:', err)
+      })
+  })
+}
+
+// --- PWA Add to Home Screen Prompt ---
+let deferredPrompt = null
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  // Prevent Chrome 67 and earlier from automatically showing the prompt
+  e.preventDefault()
+  // Stash the event so it can be triggered later
+  deferredPrompt = e
+  // Don't show if already dismissed in this session
+  if (sessionStorage.getItem('installBannerDismissed') === 'true') {
+    return
+  }
+  // Show install promotion banner
+  showInstallBanner()
+})
+
+function showInstallBanner() {
+  // Check if banner already exists
+  if (document.querySelector('.install-banner')) return
+
+  const banner = document.createElement('div')
+  banner.className = 'install-banner'
+  banner.innerHTML = `
+    <div class="install-banner__content">
+      <img src="assets/icons/icon-512.png" alt="ShopEasy Logo" style="width: 48px; height: 48px; border-radius: 8px;">
+      <div>
+        <h4 style="margin: 0; font-size: 0.95rem; font-weight: 600;">Install ShopEasy</h4>
+        <p style="margin: 2px 0 0; font-size: 0.8rem; color: var(--grey-600);">Add to your home screen for quick access and offline use</p>
+      </div>
+    </div>
+    <div class="install-banner__actions">
+      <button class="btn btn--outline btn--sm" id="btnNo" style="padding: 6px 12px; font-size: 0.8rem;">Not Now</button>
+      <button class="btn btn--primary btn--sm" id="btnYes" style="padding: 6px 12px; font-size: 0.8rem;">Install</button>
+    </div>
+  `
+  document.body.appendChild(banner)
+  
+  document.getElementById('btnNo').addEventListener('click', () => {
+    banner.remove()
+    sessionStorage.setItem('installBannerDismissed', 'true')
+  })
+  
+  document.getElementById('btnYes').addEventListener('click', () => {
+    banner.remove()
+    if (deferredPrompt) {
+      deferredPrompt.prompt()
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('User accepted the install prompt')
+        }
+        deferredPrompt = null
+      })
+    }
+  })
+}

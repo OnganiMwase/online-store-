@@ -345,6 +345,63 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  // Compression & validation helper
+  const compressImage = (file) => {
+    return new Promise((resolve, reject) => {
+      const MAX_SIZE = 2 * 1024 * 1024; // 2MB
+      if (file.size > MAX_SIZE) {
+        reject(new Error(`File "${file.name}" exceeds the 2MB size limit. Please choose a smaller file.`));
+        return;
+      }
+      if (!file.type.startsWith('image/')) {
+        reject(new Error(`File "${file.name}" is not a valid image format.`));
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          const MAX_DIM = 1024; // Keep file size ultra small (usually ~100-150kb)
+          if (width > MAX_DIM || height > MAX_DIM) {
+            if (width > height) {
+              height = Math.round((height * MAX_DIM) / width);
+              width = MAX_DIM;
+            } else {
+              width = Math.round((width * MAX_DIM) / height);
+              height = MAX_DIM;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            canvas.toBlob((blob) => {
+              if (blob) {
+                resolve(blob);
+              } else {
+                resolve(file); // fallback
+              }
+            }, 'image/jpeg', 0.75); // Compress with 0.75 quality for super fast page loads
+          } else {
+            resolve(file);
+          }
+        };
+        img.onerror = () => reject(new Error('Failed to load image for compression.'));
+        img.src = e.target.result;
+      };
+      reader.onerror = () => reject(new Error('Failed to read image file.'));
+      reader.readAsDataURL(file);
+    });
+  };
+
   // Handle Photo Picker Upload
   async function handleFilesSelected(files) {
     if (files.length === 0) return
@@ -354,24 +411,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     isUploading = true
-    showToast('Uploading images to secure storage...', 'info')
+    showToast('Compressing and validating images...', 'info')
 
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i]
+        
+        let compressedBlob;
+        try {
+          compressedBlob = await compressImage(file);
+        } catch (validationError) {
+          showToast(validationError.message, 'danger');
+          continue;
+        }
+
         const timestamp = Date.now()
         const fileIndex = uploadedUrls.length + 1
         const filename = `products/${activeProductId}/${timestamp}_${fileIndex}.jpg`
         const fileRef = ref(storage, filename)
 
         // Upload and get download URL
-        const snapshot = await uploadBytes(fileRef, file)
+        const snapshot = await uploadBytes(fileRef, compressedBlob, {
+          contentType: 'image/jpeg'
+        })
         const downloadUrl = await getDownloadURL(snapshot.ref)
 
         uploadedUrls.push(downloadUrl)
       }
 
-      showToast('All images uploaded successfully!', 'success')
+      showToast('Images processed and uploaded successfully!', 'success')
       renderPhotosGrid()
     } catch (err) {
       console.error('File upload failed:', err)

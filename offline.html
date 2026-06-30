@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline — ShopEasy</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <style>
+    body { 
+      display: flex; align-items: center; 
+      justify-content: center; min-height: 100vh;
+      flex-direction: column; text-align: center; 
+      padding: 24px;
+      font-family: var(--font-sans, sans-serif);
+      background-color: var(--grey-50, #f9fafb);
+      color: var(--grey-900, #111827);
+    }
+    .logo-box {
+      font-size: 48px;
+      font-weight: 800;
+      color: var(--primary, #E53935);
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    p {
+      color: var(--grey-600, #4b5563);
+      max-width: 360px;
+      margin-bottom: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="logo-box">
+    SE
+  </div>
+  <h1>You're offline</h1>
+  <p>Check your internet connection and try again.</p>
+  <button onclick="window.location.reload()" 
+    class="btn btn--primary" style="margin-top:24px; cursor: pointer;">
+    Try Again
+  </button>
+</body>
+</html>
