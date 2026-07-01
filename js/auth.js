@@ -17,6 +17,16 @@ export const initAuth = (options = {}) => {
           const snap = await getDoc(doc(db, 'users', user.uid))
           if (snap.exists()) {
             currentUserData = snap.data()
+            
+            // Auto-promote developer user to admin role
+            if (user.email === 'whitestepper41@gmail.com' && currentUserData.role !== 'admin') {
+              currentUserData.role = 'admin'
+              await updateDoc(doc(db, 'users', user.uid), {
+                role: 'admin'
+              })
+              console.log("Auto-promoted whitestepper41@gmail.com to admin role.")
+            }
+
             // Update lastSeen
             await updateDoc(doc(db, 'users', user.uid), {
               lastSeen: serverTimestamp()
