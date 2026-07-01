@@ -107,6 +107,21 @@ service cloud.firestore {
       allow delete: if isSignedIn() && resource.data.sellerId == request.auth.uid;
     }
 
+    // Stores (Public read, seller onboarding and management)
+    match /stores/{storeId} {
+      allow read: if true;
+      allow create: if isSignedIn() && isOwner(storeId);
+      allow update: if isSignedIn() && (isOwner(storeId) || resource.data.sellerId == request.auth.uid);
+      allow delete: if isSignedIn() && isOwner(storeId);
+    }
+
+    // Reviews (Public read, buyer-created feedback)
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && resource.data.buyerId == request.auth.uid;
+    }
+
     // Carts subcollection
     match /carts/{userId}/items/{productId} {
       allow read, write: if isOwner(userId);
