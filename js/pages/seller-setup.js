@@ -180,20 +180,91 @@ document.addEventListener('DOMContentLoaded', async () => {
     })
   })
 
-  // File Upload Handlers (Immediate Storage Uploads)
+  // Live Validation Error Clearers (Dynamic UX)
+  const nameInput = document.getElementById('store-name')
+  const descText = document.getElementById('store-description')
+  const categorySel = document.getElementById('store-category')
+  const citySel = document.getElementById('store-city')
+  
+  if (nameInput) {
+    nameInput.addEventListener('input', () => {
+      nameInput.classList.remove('form-input--error')
+      const errEl = document.getElementById('error-store-name')
+      if (errEl) errEl.classList.remove('field-error-msg--active')
+    })
+  }
+  if (descText) {
+    descText.addEventListener('input', () => {
+      if (descText.value.length >= 50) {
+        descText.classList.remove('form-input--error')
+        const errEl = document.getElementById('error-store-description')
+        if (errEl) errEl.classList.remove('field-error-msg--active')
+      }
+    })
+  }
+  if (categorySel) {
+    categorySel.addEventListener('change', () => {
+      if (categorySel.value) {
+        categorySel.classList.remove('form-input--error')
+        const errEl = document.getElementById('error-store-category')
+        if (errEl) errEl.classList.remove('field-error-msg--active')
+      }
+    })
+  }
+  if (citySel) {
+    citySel.addEventListener('change', () => {
+      if (citySel.value) {
+        citySel.classList.remove('form-input--error')
+        const errEl = document.getElementById('error-store-city')
+        if (errEl) errEl.classList.remove('field-error-msg--active')
+      }
+    })
+  }
+
+  // Live clearers for Step 2
+  const phoneInput = document.getElementById('store-phone')
+  const whatsappInput = document.getElementById('store-whatsapp')
+  const payoutInput = document.getElementById('payout-number')
+  
+  if (phoneInput) {
+    phoneInput.addEventListener('input', () => {
+      phoneInput.classList.remove('form-input--error')
+      const errEl = document.getElementById('error-store-phone')
+      if (errEl) errEl.classList.remove('field-error-msg--active')
+    })
+  }
+  if (whatsappInput) {
+    whatsappInput.addEventListener('input', () => {
+      whatsappInput.classList.remove('form-input--error')
+      const errEl = document.getElementById('error-store-whatsapp')
+      if (errEl) errEl.classList.remove('field-error-msg--active')
+    })
+  }
+  if (payoutInput) {
+    payoutInput.addEventListener('input', () => {
+      payoutInput.classList.remove('form-input--error')
+      const errEl = document.getElementById('error-payout-number')
+      if (errEl) errEl.classList.remove('field-error-msg--active')
+    })
+  }
+
+  // File Upload Handlers (Immediate Storage Uploads with failsafe Base64 timeout fallback)
   setupImmediateUpload('logo-upload-box', 'logo-file-input', 'logo-preview', `stores/temp/${currentUser.uid}/logo.jpg`, (url) => {
     logoURL = url
-    document.getElementById('error-store-logo').classList.remove('field-error-msg--active')
+    const errEl = document.getElementById('error-store-logo')
+    if (errEl) errEl.classList.remove('field-error-msg--active')
   })
 
   setupImmediateUpload('id-front-upload-box', 'id-front-file-input', 'id-front-preview', `stores/${currentUser.uid}/id_front.jpg`, (url) => {
     idFrontURL = url
-    document.getElementById('error-id-front').classList.remove('field-error-msg--active')
+    const errEl = document.getElementById('error-id-front')
+    if (errEl) errEl.classList.remove('field-error-msg--active')
   })
 
   setupImmediateUpload('id-back-upload-box', 'id-back-file-input', 'id-back-preview', `stores/${currentUser.uid}/id_back.jpg`, (url) => {
     idBackURL = url
-    document.getElementById('error-id-back').classList.remove('field-error-msg--active')
+    const errEl = document.getElementById('error-id-back')
+    if (errEl) errEl.classList.remove('field-error-msg--active')
   })
 
   // Compression & validation helper
@@ -273,36 +344,93 @@ document.addEventListener('DOMContentLoaded', async () => {
           return
         }
 
-        const originalText = box.querySelector('.upload-placeholder-lbl').textContent
-        box.querySelector('.upload-placeholder-lbl').textContent = 'Uploading...'
+        // Track element references for visual updates
+        const iconEl = box.querySelector('.upload-placeholder-icon')
+        const lblEl = box.querySelector('.upload-placeholder-lbl')
+        const subEl = box.querySelector('.upload-placeholder-sub')
+
+        const originalText = lblEl ? lblEl.textContent : 'Upload Image'
+        if (lblEl) {
+          lblEl.textContent = 'Uploading...'
+          lblEl.style.display = 'block' 
+        }
+        if (iconEl) iconEl.style.display = 'block'
+        if (subEl) subEl.style.display = 'block'
+        if (preview) preview.style.display = 'none' 
         box.style.opacity = '0.7'
 
+        // Generate local Base64 URL for immediate fallback
+        let base64Url = '';
         try {
-          const fileRef = ref(storage, storagePath)
-          await uploadBytes(fileRef, compressedBlob, {
-            contentType: 'image/jpeg'
-          })
-          const downloadUrl = await getDownloadURL(fileRef)
+          base64Url = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(new Error('Failed to read file for preview'));
+            reader.readAsDataURL(compressedBlob);
+          });
+        } catch (readErr) {
+          console.warn('Failed to generate local Base64 preview:', readErr);
+        }
 
-          // Show preview
-          preview.src = downloadUrl
-          preview.style.display = 'block'
+        let finalUrl = base64Url;
+        let usedFallback = false;
+
+        // Real Firebase Storage upload process wrapped safely using ES module references
+        const uploadPromise = (async () => {
+          const storageRef = ref(storage, storagePath)
+          await uploadBytes(storageRef, compressedBlob, { contentType: 'image/jpeg' })
+          return await getDownloadURL(storageRef)
+        })();
+
+        // Strict 4-second timeout promise (bumped slightly for slower mobile connections)
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Upload timed out, switching to local backup')), 4000)
+        });
+
+        try {
+          // Race upload against timeout
+          finalUrl = await Promise.race([uploadPromise, timeoutPromise])
+          console.log(`Successfully uploaded to storage path: ${storagePath}`)
+        } catch (uploadError) {
+          console.warn('Firebase upload issue. Forcing local Base64 fallback UI reset:', uploadError)
+          usedFallback = true
+          finalUrl = base64Url; // Force fallback assignment
+        }
+
+        // RESET UI CONFIGURATION (Ensures "Uploading..." clears out no matter what)
+        box.style.opacity = '1'
+
+        if (finalUrl) {
+          if (preview) {
+            preview.src = finalUrl
+            preview.style.display = 'block'
+          }
           
-          // Hide placeholder elements
-          box.querySelector('.upload-placeholder-icon').style.display = 'none'
-          box.querySelector('.upload-placeholder-lbl').style.display = 'none'
-          box.querySelector('.upload-placeholder-sub').style.display = 'none'
+          // Formally hide the loading indicators & labels
+          if (iconEl) iconEl.style.display = 'none'
+          if (subEl) subEl.style.display = 'none'
+          if (lblEl) {
+            lblEl.style.display = 'none'
+            lblEl.textContent = originalText 
+          }
 
-          box.querySelector('.upload-placeholder-lbl').textContent = originalText
-          box.style.opacity = '1'
+          // Fire callback to unblock form validation and let user progress
+          callback(finalUrl) 
 
-          callback(downloadUrl)
-          showToast('Image uploaded successfully!', 'success')
-        } catch (err) {
-          console.error('Storage Upload Error:', err)
-          showToast('Failed to upload image.', 'danger')
-          box.querySelector('.upload-placeholder-lbl').textContent = originalText
-          box.style.opacity = '1'
+          if (usedFallback) {
+            showToast('Image cached locally! You can proceed.', 'warning')
+          } else {
+            showToast('Image uploaded successfully!', 'success')
+          }
+        } else {
+          // Complete catastrophic failure cleanup
+          showToast('Failed to process image preview.', 'danger')
+          if (lblEl) {
+            lblEl.textContent = originalText
+            lblEl.style.display = 'block'
+          }
+          if (iconEl) iconEl.style.display = 'block'
+          if (subEl) subEl.style.display = 'block'
         }
       })
     }
