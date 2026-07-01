@@ -430,13 +430,51 @@ document.addEventListener('DOMContentLoaded', async () => {
         const filename = `products/${activeProductId}/${timestamp}_${fileIndex}.jpg`
         const fileRef = ref(storage, filename)
 
-        // Upload and get download URL
-        const snapshot = await uploadBytes(fileRef, compressedBlob, {
-          contentType: 'image/jpeg'
-        })
-        const downloadUrl = await getDownloadURL(snapshot.ref)
+        // Generate local Base64 URL for immediate fallback
+        let base64Url = '';
+        try {
+          base64Url = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(new Error('Failed to read file for preview'));
+            reader.readAsDataURL(compressedBlob);
+          });
+        } catch (readErr) {
+          console.warn('Failed to generate local Base64 preview:', readErr);
+        }
 
-        uploadedUrls.push(downloadUrl)
+        let finalUrl = base64Url;
+        let usedFallback = false;
+
+        // Upload and get download URL
+        const uploadPromise = (async () => {
+          const snapshot = await uploadBytes(fileRef, compressedBlob, {
+            contentType: 'image/jpeg'
+          })
+          return await getDownloadURL(snapshot.ref)
+        })();
+
+        // 5-second timeout promise
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Upload timed out, switching to local backup')), 5000)
+        });
+
+        try {
+          finalUrl = await Promise.race([uploadPromise, timeoutPromise])
+        } catch (uploadErr) {
+          console.warn('Firebase upload issue. Forcing local Base64 fallback:', uploadErr)
+          usedFallback = true
+          finalUrl = base64Url;
+        }
+
+        if (finalUrl) {
+          uploadedUrls.push(finalUrl)
+          if (usedFallback) {
+            showToast(`Photo ${i + 1} cached locally (storage fallback)!`, 'warning')
+          }
+        } else {
+          showToast(`Failed to process photo ${i + 1}`, 'danger')
+        }
       }
 
       showToast('Images processed and uploaded successfully!', 'success')
@@ -447,6 +485,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     } finally {
       isUploading = false
       filePicker.value = '' // reset
+      
+      // Release button loading/disabled states if any were triggered
+      const btnPublish = document.getElementById('btn-publish')
+      const btnSaveDraft = document.getElementById('btn-save-draft')
+      if (btnPublish) hideLoading(btnPublish, 'Publish')
+      if (btnSaveDraft) hideLoading(btnSaveDraft, 'Save Draft')
     }
   }
 

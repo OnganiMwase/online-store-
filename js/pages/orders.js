@@ -66,54 +66,47 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // Fetch Orders Core Function
+  let cachedOrders = [];
+  let displayedCount = 0;
+
   const fetchOrders = async (isAppend = false) => {
     try {
-      let q;
-      if (activeTab === 'all') {
-        if (lastVisibleDoc) {
-          q = query(
-            collection(db, 'orders'),
-            where('buyerId', '==', authUser.uid),
-            orderBy('createdAt', 'desc'),
-            startAfter(lastVisibleDoc),
-            limit(PAGE_SIZE)
-          );
-        } else {
-          q = query(
-            collection(db, 'orders'),
-            where('buyerId', '==', authUser.uid),
-            orderBy('createdAt', 'desc'),
-            limit(PAGE_SIZE)
-          );
-        }
-      } else {
-        if (lastVisibleDoc) {
-          q = query(
-            collection(db, 'orders'),
-            where('buyerId', '==', authUser.uid),
-            where('status', '==', activeTab),
-            orderBy('createdAt', 'desc'),
-            startAfter(lastVisibleDoc),
-            limit(PAGE_SIZE)
-          );
-        } else {
-          q = query(
-            collection(db, 'orders'),
-            where('buyerId', '==', authUser.uid),
-            where('status', '==', activeTab),
-            orderBy('createdAt', 'desc'),
-            limit(PAGE_SIZE)
-          );
-        }
-      }
-
-      const snapshot = await getDocs(q);
-      
       if (!isAppend) {
+        // Query buyer's orders with single-field filter (no index required)
+        let q;
+        if (activeTab === 'all') {
+          q = query(
+            collection(db, 'orders'),
+            where('buyerId', '==', authUser.uid)
+          );
+        } else {
+          q = query(
+            collection(db, 'orders'),
+            where('buyerId', '==', authUser.uid),
+            where('status', '==', activeTab)
+          );
+        }
+
+        const snapshot = await getDocs(q);
+        cachedOrders = [];
+        snapshot.forEach(docSnap => {
+          const order = docSnap.data();
+          order.id = docSnap.id;
+          cachedOrders.push(order);
+        });
+
+        // Sort by createdAt descending locally
+        cachedOrders.sort((a, b) => {
+          const tA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : (a.createdAt ? new Date(a.createdAt).getTime() : 0);
+          const tB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : (b.createdAt ? new Date(b.createdAt).getTime() : 0);
+          return tB - tA;
+        });
+
+        displayedCount = 0;
         container.innerHTML = '';
       }
 
-      if (snapshot.empty && !isAppend) {
+      if (cachedOrders.length === 0) {
         let emptyTitle = 'No Orders Yet';
         let emptyDesc = 'You have not placed any orders. Start shopping today!';
         
@@ -149,22 +142,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
       }
 
-      snapshot.forEach(docSnap => {
-        const order = docSnap.data();
-        order.id = docSnap.id;
+      // Render next slice locally
+      const start = displayedCount;
+      const end = Math.min(start + PAGE_SIZE, cachedOrders.length);
+      const slice = cachedOrders.slice(start, end);
+
+      slice.forEach(order => {
         container.appendChild(renderOrderCard(order));
       });
 
-      // Pagination tracking
-      if (snapshot.docs.length > 0) {
-        lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1];
-        hasMore = snapshot.docs.length === PAGE_SIZE;
-        
-        if (hasMore) {
-          loadMoreContainer.classList.remove('hidden');
-        } else {
-          loadMoreContainer.classList.add('hidden');
-        }
+      displayedCount = end;
+      hasMore = displayedCount < cachedOrders.length;
+      
+      if (hasMore) {
+        loadMoreContainer.classList.remove('hidden');
       } else {
         loadMoreContainer.classList.add('hidden');
       }
