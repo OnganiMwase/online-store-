@@ -1,10 +1,10 @@
 {
-  "projectId": "graphic-wallaby-q7854",
-  "appId": "1:791671181439:web:fca7df393dcb17cb166f4a",
-  "apiKey": "AIzaSyDNjfq3n1JSFsf6QwU154iWnN_zicdN7cU",
-  "authDomain": "graphic-wallaby-q7854.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-shopeasy-914153f6-6859-4f83-80af-97863d6408db",
-  "storageBucket": "graphic-wallaby-q7854.firebasestorage.app",
-  "messagingSenderId": "791671181439",
-  "measurementId": ""
+  "projectId": "shopeasy-60d11",
+  "appId": "1:977064930579:web:22c51d4cc187ee5649fee6",
+  "apiKey": "AIzaSyBzkgJK_JMP5AyT0cxL2QmPDW9DOuIgvM0",
+  "authDomain": "shopeasy-60d11.firebaseapp.com",
+  "firestoreDatabaseId": "(default)",
+  "storageBucket": "shopeasy-60d11.firebasestorage.app",
+  "messagingSenderId": "977064930579",
+  "measurementId": "G-R2KS0QQQLN"
 }

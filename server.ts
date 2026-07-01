@@ -78,13 +78,16 @@ try {
 }
 
 // Initialize Firebase Admin
+const adminProjectId = firebaseConfig.projectId || process.env.FIREBASE_PROJECT_ID || process.env.GCLOUD_PROJECT;
 if (getApps().length === 0) {
   initializeApp({
-    projectId: firebaseConfig.projectId || "graphic-wallaby-q7854"
+    projectId: adminProjectId || undefined
   });
 }
 
-const db = getFirestore(firebaseConfig.firestoreDatabaseId || "ai-studio-shopeasy-914153f6-6859-4f83-80af-97863d6408db");
+const db = (firebaseConfig.firestoreDatabaseId && firebaseConfig.firestoreDatabaseId !== "(default)")
+  ? getFirestore(firebaseConfig.firestoreDatabaseId)
+  : getFirestore();
 
 // 1. Paychangu Payment Initiation API
 app.post("/api/initiatePaychangu", async (req, res) => {
