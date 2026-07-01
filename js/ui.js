@@ -74,7 +74,7 @@ export const renderEmptyState = (iconName, title, message, buttonText, buttonHre
       <h3 class="empty-state__title" style="font-size: 1.2rem; font-weight: 600; color: var(--secondary); margin-top: 8px;">${title}</h3>
       <p class="empty-state__message" style="font-size: 0.9rem; max-width: 280px; line-height: 1.4;">${message}</p>
       ${buttonText && buttonHref ? `
-        <a href="${buttonHref}" class="btn btn--primary btn--sm" style="margin-top: 8px;">${buttonText}</a>
+        <a href="${getRelativePath(buttonHref)}" class="btn btn--primary btn--sm" style="margin-top: 8px;">${buttonText}</a>
       ` : ''}
     </div>
   `
