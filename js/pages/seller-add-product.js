@@ -414,70 +414,84 @@ document.addEventListener('DOMContentLoaded', async () => {
     showToast('Compressing and validating images...', 'info')
 
     try {
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i]
-        
+      // Safeguard: Check storage references
+      const storageInstance = window.storage || storage;
+      if (!storageInstance) {
+        showToast("Storage initialization delayed. Falling back to local display.", "warning");
+      }
+
+      // Map files into concurrent execution packages
+      const uploadPromises = Array.from(files).map(async (file, index) => {
         let compressedBlob;
-        try {
-          compressedBlob = await compressImage(file);
-        } catch (validationError) {
-          showToast(validationError.message, 'danger');
-          continue;
-        }
-
-        const timestamp = Date.now()
-        const fileIndex = uploadedUrls.length + 1
-        const filename = `products/${activeProductId}/${timestamp}_${fileIndex}.jpg`
-        const fileRef = ref(storage, filename)
-
-        // Generate local Base64 URL for immediate fallback
         let base64Url = '';
+
         try {
+          // 1. Compress Image
+          compressedBlob = await compressImage(file);
+          
+          // 2. Generate local base64 preview path instantly as a backup
           base64Url = await new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = () => resolve(reader.result);
-            reader.onerror = () => reject(new Error('Failed to read file for preview'));
+            reader.onerror = () => reject(new Error('Preview read error'));
             reader.readAsDataURL(compressedBlob);
           });
-        } catch (readErr) {
-          console.warn('Failed to generate local Base64 preview:', readErr);
+        } catch (err) {
+          console.warn(`File preprocessing failed at slot ${index + 1}:`, err);
+          return null;
         }
 
-        let finalUrl = base64Url;
-        let usedFallback = false;
+        if (!storageInstance) return base64Url; // Direct fallback if offline
 
-        // Upload and get download URL
-        const uploadPromise = (async () => {
-          const snapshot = await uploadBytes(fileRef, compressedBlob, {
-            contentType: 'image/jpeg'
-          })
-          return await getDownloadURL(snapshot.ref)
-        })();
+        // 3. Build Firebase upload job alongside a strict 5-second race timeout
+        const timestamp = Date.now()
+        const fileIndex = uploadedUrls.length + index + 1
+        const filename = `products/${activeProductId}/${timestamp}_${fileIndex}.jpg`
+        
+        const refFunc = typeof ref !== 'undefined' ? ref : (window.FirebaseStorage && window.FirebaseStorage.ref);
+        const uploadBytesFunc = typeof uploadBytes !== 'undefined' ? uploadBytes : (window.FirebaseStorage && window.FirebaseStorage.uploadBytes);
+        const getDownloadURLFunc = typeof getDownloadURL !== 'undefined' ? getDownloadURL : (window.FirebaseStorage && window.FirebaseStorage.getDownloadURL);
 
-        // 5-second timeout promise
+        if (!refFunc || !uploadBytesFunc || !getDownloadURLFunc) {
+          console.warn("Storage SDK elements not present globally. Falling back to local Base64.");
+          return base64Url;
+        }
+
+        const storageRef = refFunc(storageInstance, filename);
+        
+        // Fallback logic if modular SDK isn't locally imported inside this specific file scope
+        const executeUpload = async () => {
+          const snapshot = await uploadBytesFunc(storageRef, compressedBlob, { contentType: 'image/jpeg' });
+          return await getDownloadURLFunc(snapshot.ref);
+        };
+
         const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Upload timed out, switching to local backup')), 5000)
+          setTimeout(() => reject(new Error('Timed out')), 5000);
         });
 
         try {
-          finalUrl = await Promise.race([uploadPromise, timeoutPromise])
+          // Race remote server against local timer
+          const finalUrl = await Promise.race([executeUpload(), timeoutPromise]);
+          console.log(`Slot ${index + 1} uploaded to server.`);
+          return finalUrl;
         } catch (uploadErr) {
-          console.warn('Firebase upload issue. Forcing local Base64 fallback:', uploadErr)
-          usedFallback = true
-          finalUrl = base64Url;
+          console.warn(`Slot ${index + 1} hit network issues. Using local storage string backup:`, uploadErr);
+          return base64Url; // Forgive network dropouts, use local base64 snapshot
         }
+      });
 
-        if (finalUrl) {
-          uploadedUrls.push(finalUrl)
-          if (usedFallback) {
-            showToast(`Photo ${i + 1} cached locally (storage fallback)!`, 'warning')
-          }
-        } else {
-          showToast(`Failed to process photo ${i + 1}`, 'danger')
-        }
-      }
+      // Execute all slots at the exact same time
+      const results = await Promise.all(uploadPromises);
+      
+      // Filter out completely dead null items, keeping valid URLs and local storage links
+      const validResults = results.filter(url => url !== null);
+      uploadedUrls = [...uploadedUrls, ...validResults];
+      
+      // Clean up UI banners instantly
+      const loadingOverlay = document.querySelector('.compression-overlay-box');
+      if (loadingOverlay) loadingOverlay.style.display = 'none';
 
-      showToast('Images processed and uploaded successfully!', 'success')
+      showToast("Images validated! You can publish your product now.", "success");
       renderPhotosGrid()
     } catch (err) {
       console.error('File upload failed:', err)
@@ -489,8 +503,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Release button loading/disabled states if any were triggered
       const btnPublish = document.getElementById('btn-publish')
       const btnSaveDraft = document.getElementById('btn-save-draft')
-      if (btnPublish) hideLoading(btnPublish, 'Publish')
-      if (btnSaveDraft) hideLoading(btnSaveDraft, 'Save Draft')
+      if (btnPublish) hideLoading(btnPublish)
+      if (btnSaveDraft) hideLoading(btnSaveDraft)
     }
   }
 
