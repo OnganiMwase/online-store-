@@ -195,13 +195,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Bind navigations to mini product clicks
     card.querySelectorAll('.mini-product-card').forEach(pCard => {
       pCard.addEventListener('click', () => {
-        redirect(`product.html?id=${pCard.dataset.id}`);
+        redirect(`/product.html?id=${pCard.dataset.id}`);
       });
     });
 
     // Bind goto store info clicks
     card.querySelector('.goto-store-btn').addEventListener('click', () => {
-      redirect(`store.html?id=${storeId}`);
+      redirect(`/store.html?id=${storeId}`);
     });
 
     // Bind Unfollow Click Action
@@ -381,7 +381,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const card = document.createElement('div');
         card.className = 'discover-store-card';
         card.innerHTML = `
-          <a href="/store.html?id=${store.id}" style="display: flex; flex-direction: column; align-items: center; gap: 6px; text-decoration: none;">
+          <a href="store.html?id=${store.id}" style="display: flex; flex-direction: column; align-items: center; gap: 6px; text-decoration: none;">
             <img src="${logoUrl}" alt="${store.name}" class="store-logo-img">
             <span style="font-size: 0.8rem; font-weight: 850; color: var(--secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 136px;">${store.name}</span>
             <span style="font-size: 0.7rem; color: var(--grey-600); font-weight: 600;">${store.city || 'Malawi'}</span>

@@ -293,7 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const editProfileBtn = document.getElementById('edit-profile-btn')
     if (editProfileBtn) {
       editProfileBtn.addEventListener('click', () => {
-        redirect('settings.html#profile')
+        redirect('/settings.html#profile')
       })
     }
 
@@ -302,7 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const el = document.getElementById(elementId)
       if (el) {
         el.addEventListener('click', () => {
-          redirect(`orders.html?tab=${tabName}`)
+          redirect(`/orders.html?tab=${tabName}`)
         })
       }
     }
@@ -321,23 +321,23 @@ document.addEventListener('DOMContentLoaded', () => {
         })
       }
     }
-    bindGridRedirect('menu-wishlist', 'wishlist.html')
-    bindGridRedirect('menu-followed', 'followed-stores.html')
-    bindGridRedirect('menu-messages', 'messages.html')
-    bindGridRedirect('menu-settings', 'settings.html')
+    bindGridRedirect('menu-wishlist', '/wishlist.html')
+    bindGridRedirect('menu-followed', '/followed-stores.html')
+    bindGridRedirect('menu-messages', '/messages.html')
+    bindGridRedirect('menu-settings', '/settings.html')
 
     // 5. Role card button redirs
     const becomeSellerBtn = document.getElementById('btn-become-seller')
     if (becomeSellerBtn) {
       becomeSellerBtn.addEventListener('click', () => {
-        redirect('seller/setup.html')
+        redirect('/seller/setup.html')
       })
     }
 
     const manageStoreBtn = document.getElementById('btn-manage-store')
     if (manageStoreBtn) {
       manageStoreBtn.addEventListener('click', () => {
-        redirect('seller/dashboard.html')
+        redirect('/seller/dashboard.html')
       })
     }
 
@@ -415,7 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
           logoutModal.classList.remove('confirm-overlay--visible')
         }
         showToast('Successfully signed out!', 'success')
-        setTimeout(() => redirect('login.html'), 1000)
+        setTimeout(() => redirect('/login.html'), 1000)
       } catch (err) {
         showToast('Failed to sign out. Try again.', 'danger')
       }

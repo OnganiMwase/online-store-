@@ -227,7 +227,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       </div>
       
       <div class="product-card__image-container">
-        <a href="/product.html?id=${productId}" class="card-body-link">
+        <a href="product.html?id=${productId}" class="card-body-link">
           <img class="product-card__image" src="${image}" alt="${name}" loading="lazy" referrerPolicy="no-referrer" />
         </a>
         <button class="product-card__wishlist product-card__wishlist--active remove-wishlist-btn" data-id="${productId}" aria-label="Remove from wishlist" style="color: var(--primary);">
@@ -239,7 +239,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
           <span>${city}</span>
         </div>
-        <a href="/product.html?id=${productId}" class="card-body-link">
+        <a href="product.html?id=${productId}" class="card-body-link">
           <h3 class="product-card__title" style="font-size: 0.85rem; font-weight: 600; color: var(--secondary); line-height: 1.25; height: 2.5rem; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${name}</h3>
         </a>
         <div class="product-card__price" style="font-size: 0.95rem; font-weight: 700; color: var(--primary); margin-top: 4px;">${formatMWK(price)}</div>
@@ -419,7 +419,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           <div style="font-size: 4rem; color: var(--primary); font-weight: 300; line-height: 1;">💔</div>
           <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--secondary); margin: 0;">No saved items</h3>
           <p style="font-size: 0.85rem; max-width: 280px; line-height: 1.4; color: var(--grey-600); margin: 0;">Browse products and tap ❤️ to save them here</p>
-          <a href="/shop.html" class="btn btn--primary" style="margin-top: 10px; font-weight: 800; padding: 10px 24px; text-transform: uppercase;">Browse Products</a>
+          <a href="shop.html" class="btn btn--primary" style="margin-top: 10px; font-weight: 800; padding: 10px 24px; text-transform: uppercase;">Browse Products</a>
         </div>
       </div>
     `;
@@ -432,7 +432,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       const snap = await getDocs(collection(db, `carts/${authUser.uid}/items`));
       const count = snap.size;
-      const cartItem = document.querySelector('a[href="/cart.html"]');
+      const cartItem = document.querySelector('a[href="cart.html"]');
       if (cartItem) {
         const existingBadge = cartItem.querySelector('.cart-badge');
         if (existingBadge) existingBadge.remove();

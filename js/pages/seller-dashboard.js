@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         <span class="low-stock-name">${item.name}</span>
         <div style="display: flex; align-items: center; gap: 8px;">
           <span class="low-stock-count">${item.stock} left</span>
-          <a href="/seller/add-product.html?id=${item.id}" class="btn btn--outline btn--sm" style="padding: 2px 6px; font-size: 0.68rem; border-color: var(--primary); color: var(--primary);">Update Stock</a>
+          <a href="add-product.html?id=${item.id}" class="btn btn--outline btn--sm" style="padding: 2px 6px; font-size: 0.68rem; border-color: var(--primary); color: var(--primary);">Update Stock</a>
         </div>
       `
       lowStockRowsContainer.appendChild(row)

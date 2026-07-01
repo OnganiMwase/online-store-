@@ -296,7 +296,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (tapArea) {
       tapArea.addEventListener('click', (e) => {
         if (!e.target.closest('button') && !e.target.closest('a')) {
-          redirect(`order-detail.html?id=${order.id}`);
+          redirect(`/order-detail.html?id=${order.id}`);
         }
       });
     }
@@ -392,7 +392,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           const convSnap = await getDoc(convRef);
 
           if (convSnap.exists()) {
-            redirect(`chat.html?id=${convId}&name=${encodeURIComponent(storeName)}`);
+            redirect(`/chat.html?id=${convId}&name=${encodeURIComponent(storeName)}`);
           } else {
             // Setup conversation document
             await setDoc(convRef, {
@@ -420,7 +420,7 @@ document.addEventListener('DOMContentLoaded', async () => {
               read: false
             });
 
-            redirect(`chat.html?id=${convId}&name=${encodeURIComponent(storeName)}`);
+            redirect(`/chat.html?id=${convId}&name=${encodeURIComponent(storeName)}`);
           }
         } catch (err) {
           hideLoading(contactBtn);
@@ -472,9 +472,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         e.stopPropagation();
         const firstProduct = order.items?.[0];
         if (firstProduct?.id || firstProduct?.productId) {
-          redirect(`product.html?id=${firstProduct.productId || firstProduct.id}`);
+          redirect(`/product.html?id=${firstProduct.productId || firstProduct.id}`);
         } else {
-          redirect('shop.html');
+          redirect('/shop.html');
         }
       });
     }
@@ -507,7 +507,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (reportLink) {
       reportLink.addEventListener('click', (e) => {
         e.stopPropagation();
-        redirect(`dispute.html?orderId=${order.id}`);
+        redirect(`/dispute.html?orderId=${order.id}`);
       });
     }
 

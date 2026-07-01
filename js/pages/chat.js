@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   if (!convoId) {
     showToast('Invalid chat reference.', 'danger');
-    setTimeout(() => redirect('messages.html'), 1500);
+    setTimeout(() => redirect('/messages.html'), 1500);
     return;
   }
 
@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Back Button
   if (backBtn) {
     backBtn.addEventListener('click', () => {
-      redirect('messages.html');
+      redirect('/messages.html');
     });
   }
 
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!convoSnap.exists()) {
       showToast('Conversation not found.', 'danger');
-      redirect('messages.html');
+      redirect('/messages.html');
       return;
     }
 
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!isBuyer && !isSeller) {
       showToast('Access denied.', 'danger');
-      redirect('messages.html');
+      redirect('/messages.html');
       return;
     }
 
@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         orderRefImage.src = prod.image || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff';
         orderRefName.textContent = prod.name || prod.title;
         orderRefPrice.textContent = formatMWK(prod.price);
-        orderRefLink.href = `product.html?id=${productId}`;
+        orderRefLink.href = `/product.html?id=${productId}`;
         orderRefCard.classList.remove('hidden');
 
         // Collapsible trigger

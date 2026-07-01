@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       <div style="text-align: center; padding: 64px 16px; color: var(--danger);">
         <h3>Store Reference Missing</h3>
         <p style="font-size: 0.85rem; margin-top: 6px; color: var(--grey-600);">Please go back to shopping and select a valid store profile.</p>
-        <a href="/shop.html" class="btn btn--primary btn--sm" style="margin-top: 16px;">Go to Shop</a>
+        <a href="shop.html" class="btn btn--primary btn--sm" style="margin-top: 16px;">Go to Shop</a>
       </div>
     `;
     return;
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div style="text-align: center; padding: 64px 16px; color: var(--secondary);">
           <h3>Seller Store Profile Not Found</h3>
           <p style="font-size: 0.85rem; margin-top: 6px; color: var(--grey-600);">The store you are looking for may have been deactivated or renamed.</p>
-          <a href="/shop.html" class="btn btn--primary btn--sm" style="margin-top: 16px;">Go to Shop</a>
+          <a href="shop.html" class="btn btn--primary btn--sm" style="margin-top: 16px;">Go to Shop</a>
         </div>
       `;
       return;

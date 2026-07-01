@@ -88,7 +88,7 @@ async function syncCartBadge() {
     const count = snap.size
     
     // Find the cart link in the bottom navigation
-    const cartItem = document.querySelector('a[href="/cart.html"]')
+    const cartItem = document.querySelector('a[href="cart.html"]')
     if (cartItem) {
       // Remove any existing badge
       const existingBadge = cartItem.querySelector('.cart-badge')
@@ -124,7 +124,7 @@ async function loadProductDetails(productId) {
           <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--grey-400)" stroke-width="2" style="margin: 0 auto 16px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           <h3 style="font-size: 1.15rem; color: var(--secondary); font-weight: 700;">Listing Not Found</h3>
           <p style="color: var(--grey-600); font-size: 0.85rem; margin-top: 6px; max-width: 260px; margin-left: auto; margin-right: auto;">The product you are looking for does not exist or has been removed by the seller.</p>
-          <a href="/shop.html" class="btn btn--primary btn--sm" style="margin-top: 16px; display: inline-flex;">Go to Shop</a>
+          <a href="shop.html" class="btn btn--primary btn--sm" style="margin-top: 16px; display: inline-flex;">Go to Shop</a>
         </div>
       `
       return
