@@ -62,6 +62,9 @@ try {
     window.auth = auth;
     window.storage = storage;
     window.functions = functions;
+
+    // 🚀 CRITICAL FIX: Broadcast to all other page scripts that variables are alive!
+    window.dispatchEvent(new CustomEvent('firebaseReady'));
   }
 } catch (error) {
   console.error("🔴 [ShopEasy] Failed to initialize Firebase connection with the provided config:", error);
