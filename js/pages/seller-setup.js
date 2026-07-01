@@ -349,7 +349,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const lblEl = box.querySelector('.upload-placeholder-lbl')
         const subEl = box.querySelector('.upload-placeholder-sub')
 
-        const originalText = 'Upload Image'
+        const originalText = lblEl ? lblEl.textContent : 'Upload Image'
         if (lblEl) {
           lblEl.textContent = 'Uploading...'
           lblEl.style.display = 'block' 
@@ -375,24 +375,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         let finalUrl = base64Url;
         let usedFallback = false;
 
-        // Real Firebase Storage upload process wrapped safely using fallback references
+        // Real Firebase Storage upload process wrapped safely using ES module references
         const uploadPromise = (async () => {
-          // Safe dynamically checked Firebase variables
-          const storageInstance = window.storage;
-          const refFunc = typeof ref !== 'undefined' ? ref : (window.FirebaseStorage && window.FirebaseStorage.ref);
-          const uploadBytesFunc = typeof uploadBytes !== 'undefined' ? uploadBytes : (window.FirebaseStorage && window.FirebaseStorage.uploadBytes);
-          const getDownloadURLFunc = typeof getDownloadURL !== 'undefined' ? getDownloadURL : (window.FirebaseStorage && window.FirebaseStorage.getDownloadURL);
-
-          if (!storageInstance || !refFunc || !uploadBytesFunc || !getDownloadURLFunc) {
-            throw new Error("Firebase SDK is not fully available in global scope yet.");
-          }
-
-          const storageRef = refFunc(storageInstance, storagePath);
-          await uploadBytesFunc(storageRef, compressedBlob, { contentType: 'image/jpeg' });
-          return await getDownloadURLFunc(storageRef);
+          const storageRef = ref(storage, storagePath)
+          await uploadBytes(storageRef, compressedBlob, { contentType: 'image/jpeg' })
+          return await getDownloadURL(storageRef)
         })();
 
-        // Strict 4-second timeout promise 
+        // Strict 4-second timeout promise (bumped slightly for slower mobile connections)
         const timeoutPromise = new Promise((_, reject) => {
           setTimeout(() => reject(new Error('Upload timed out, switching to local backup')), 4000)
         });
@@ -407,7 +397,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           finalUrl = base64Url; // Force fallback assignment
         }
 
-        // 🚀 CRITICAL FIX: RESET UI CONFIGURATION NO MATTER WHAT HAPPENS ABOVE
+        // RESET UI CONFIGURATION (Ensures "Uploading..." clears out no matter what)
         box.style.opacity = '1'
 
         if (finalUrl) {
@@ -433,7 +423,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             showToast('Image uploaded successfully!', 'success')
           }
         } else {
-          // Complete failure cleanup block
+          // Complete catastrophic failure cleanup
           showToast('Failed to process image preview.', 'danger')
           if (lblEl) {
             lblEl.textContent = originalText
