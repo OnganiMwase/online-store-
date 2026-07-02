@@ -322,7 +322,36 @@ document.addEventListener('DOMContentLoaded', async () => {
         );
       }
 
-      const snapshot = await getDocs(pQuery);
+      let snapshot;
+      try {
+        snapshot = await getDocs(pQuery);
+      } catch (queryErr) {
+        console.warn("Index not found, falling back to client-side sorting/filtering for store products", queryErr);
+        const fallbackQuery = query(
+          collection(db, 'products'),
+          where('storeId', '==', storeId),
+          where('isActive', '==', true)
+        );
+        const allSnap = await getDocs(fallbackQuery);
+        let sortedDocs = [...allSnap.docs];
+        sortedDocs.sort((a, b) => {
+          const dateA = a.data().createdAt?.toDate ? a.data().createdAt.toDate() : new Date(a.data().createdAt || 0);
+          const dateB = b.data().createdAt?.toDate ? b.data().createdAt.toDate() : new Date(b.data().createdAt || 0);
+          return dateB - dateA;
+        });
+
+        const offset = loadMore && lastVisibleProduct ? sortedDocs.findIndex(d => d.id === lastVisibleProduct.id) + 1 : 0;
+        const paginatedDocs = sortedDocs.slice(offset, offset + 12);
+
+        snapshot = {
+          empty: paginatedDocs.length === 0,
+          docs: paginatedDocs,
+          size: paginatedDocs.length,
+          forEach(callback) {
+            paginatedDocs.forEach(callback);
+          }
+        };
+      }
       
       if (!loadMore) {
         productsGrid.innerHTML = '';

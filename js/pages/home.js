@@ -140,12 +140,29 @@ const loadLatestProducts = async () => {
   container.innerHTML = renderSkeleton(4)
   
   try {
-    const snap = await getDocs(
-      query(collection(db, 'products'),
-        where('isActive', '==', true),
-        orderBy('createdAt', 'desc'),
-        limit(6))
-    )
+    let snap
+    try {
+      snap = await getDocs(
+        query(collection(db, 'products'),
+          where('isActive', '==', true),
+          orderBy('createdAt', 'desc'),
+          limit(6))
+      )
+    } catch (queryErr) {
+      console.warn("Index not found, falling back to client-side sorting/filtering for latest products", queryErr)
+      const fallbackQuery = query(collection(db, 'products'), where('isActive', '==', true))
+      const allSnap = await getDocs(fallbackQuery)
+      let sortedDocs = [...allSnap.docs]
+      sortedDocs.sort((a, b) => {
+        const dateA = a.data().createdAt?.toDate ? a.data().createdAt.toDate() : new Date(a.data().createdAt || 0)
+        const dateB = b.data().createdAt?.toDate ? b.data().createdAt.toDate() : new Date(b.data().createdAt || 0)
+        return dateB - dateA
+      })
+      snap = {
+        empty: sortedDocs.length === 0,
+        docs: sortedDocs.slice(0, 6)
+      }
+    }
     
     if (snap.empty) {
       container.innerHTML = ''
@@ -163,6 +180,7 @@ const loadLatestProducts = async () => {
     ).join('')
     
   } catch (err) {
+    console.error("Error loading latest products: ", err)
     container.innerHTML = renderEmptyState(
       'package', 'Could not load products', 
       'Check your connection and refresh', 
@@ -173,12 +191,29 @@ const loadLatestProducts = async () => {
 const loadSellers = async () => {
   const container = document.getElementById('sellersList')
   try {
-    const snap = await getDocs(
-      query(collection(db, 'stores'),
-        where('status', '==', 'approved'),
-        orderBy('createdAt', 'desc'),
-        limit(8))
-    )
+    let snap
+    try {
+      snap = await getDocs(
+        query(collection(db, 'stores'),
+          where('status', '==', 'approved'),
+          orderBy('createdAt', 'desc'),
+          limit(8))
+      )
+    } catch (queryErr) {
+      console.warn("Index not found, falling back to client-side sorting/filtering for sellers", queryErr)
+      const fallbackQuery = query(collection(db, 'stores'), where('status', '==', 'approved'))
+      const allSnap = await getDocs(fallbackQuery)
+      let sortedDocs = [...allSnap.docs]
+      sortedDocs.sort((a, b) => {
+        const dateA = a.data().createdAt?.toDate ? a.data().createdAt.toDate() : new Date(a.data().createdAt || 0)
+        const dateB = b.data().createdAt?.toDate ? b.data().createdAt.toDate() : new Date(b.data().createdAt || 0)
+        return dateB - dateA
+      })
+      snap = {
+        empty: sortedDocs.length === 0,
+        docs: sortedDocs.slice(0, 8)
+      }
+    }
     
     if (snap.empty) {
       document.getElementById('sellersSection').style.display = 'none'
@@ -201,6 +236,7 @@ const loadSellers = async () => {
     }).join('')
     
   } catch (err) {
+    console.error("Error loading sellers: ", err)
     document.getElementById('sellersSection').style.display = 'none'
   }
 }
@@ -225,7 +261,28 @@ const loadAllProducts = async (loadMore = false) => {
       container.innerHTML = ''
     }
     
-    const snap = await getDocs(q)
+    let snap
+    try {
+      snap = await getDocs(q)
+    } catch (queryErr) {
+      console.warn("Index not found, falling back to client-side sorting/filtering for all products", queryErr)
+      const fallbackQuery = query(collection(db, 'products'), where('isActive', '==', true))
+      const allSnap = await getDocs(fallbackQuery)
+      let sortedDocs = [...allSnap.docs]
+      sortedDocs.sort((a, b) => {
+        const dateA = a.data().createdAt?.toDate ? a.data().createdAt.toDate() : new Date(a.data().createdAt || 0)
+        const dateB = b.data().createdAt?.toDate ? b.data().createdAt.toDate() : new Date(b.data().createdAt || 0)
+        return dateB - dateA
+      })
+      
+      const offset = loadMore && lastProductDoc ? sortedDocs.findIndex(d => d.id === lastProductDoc.id) + 1 : 0
+      const paginatedDocs = sortedDocs.slice(offset, offset + PAGE_SIZE)
+      
+      snap = {
+        empty: paginatedDocs.length === 0,
+        docs: paginatedDocs
+      }
+    }
     
     if (snap.empty && !loadMore) {
       container.innerHTML = `<div style="text-align: center; padding: 32px; color: var(--grey-600); grid-column: span 2;">No products available.</div>`
@@ -245,6 +302,7 @@ const loadAllProducts = async (loadMore = false) => {
       snap.docs.length === PAGE_SIZE ? 'block' : 'none'
     
   } catch (err) {
+    console.error("Error loading all products: ", err)
     if (!loadMore) {
       container.innerHTML = renderEmptyState(
         'package', 'Could not load products', '', 'Refresh', '#')
