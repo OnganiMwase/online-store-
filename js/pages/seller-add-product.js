@@ -366,7 +366,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           let width = img.width;
           let height = img.height;
 
-          const MAX_DIM = 1024; // Keep file size ultra small (usually ~100-150kb)
+          const MAX_DIM = 800; // Keep file size ultra small (usually ~60-100kb)
           if (width > MAX_DIM || height > MAX_DIM) {
             if (width > height) {
               height = Math.round((height * MAX_DIM) / width);
@@ -389,7 +389,7 @@ document.addEventListener('DOMContentLoaded', async () => {
               } else {
                 resolve(file); // fallback
               }
-            }, 'image/jpeg', 0.75); // Compress with 0.75 quality for super fast page loads
+            }, 'image/jpeg', 0.70); // Compress with 0.70 quality for super fast page loads
           } else {
             resolve(file);
           }
@@ -951,7 +951,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (error) {
       console.error(error)
       hideLoading(submitBtn)
-      showToast('Could not save product listing details.', 'danger')
+      const errorMsg = error instanceof Error ? error.message : String(error)
+      showToast(`Could not save product listing details: ${errorMsg}`, 'danger')
       handleFirestoreError(error, OperationType.WRITE, `products/${activeProductId}`)
     }
   }

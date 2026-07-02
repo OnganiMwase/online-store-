@@ -31,7 +31,7 @@ service cloud.firestore {
       return data.name is string && data.name.size() <= 200 &&
              data.price is number && data.price >= 0 &&
              data.category is string && data.category.size() <= 100 &&
-             data.image is string && data.image.size() <= 1000000 &&
+             data.image is string && data.image.size() <= 10000000 &&
              data.description is string && data.description.size() <= 5000 &&
              data.sellerId == request.auth.uid &&
              data.city is string && data.city.size() <= 100;
