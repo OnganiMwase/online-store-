@@ -65,8 +65,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       // 1. Fetch products owned by seller
       const prodQuery = query(
         collection(db, 'products'), 
-        where('sellerId', '==', currentUser.uid),
-        orderBy('createdAt', 'desc')
+        where('sellerId', '==', currentUser.uid)
       )
       const prodSnapshot = await getDocs(prodQuery)
       productsList = []
@@ -77,6 +76,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (item.isDeleted === true) return
         item.id = docSnap.id
         productsList.push(item)
+      })
+
+      // Sort locally by createdAt desc to bypass index requirements
+      productsList.sort((a, b) => {
+        const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt || 0)
+        const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt || 0)
+        return dateB - dateA
       })
 
       // 2. Fetch all orders containing this seller's products to check for order dependency

@@ -921,16 +921,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         payload.rating = 5.0
         payload.reviewCount = 0
 
-        // Increment category count
+        // Increment category count safely
         try {
           await updateDoc(doc(db, 'categories', categorySlug), {
             productCount: increment(1)
           })
         } catch (catErr) {
           console.warn('Could not increment category counts. Doing fallback setDoc.', catErr)
-          await setDoc(doc(db, 'categories', categorySlug), {
-            productCount: increment(1)
-          }, { merge: true })
+          try {
+            await setDoc(doc(db, 'categories', categorySlug), {
+              productCount: increment(1)
+            }, { merge: true })
+          } catch (fallbackErr) {
+            console.warn('Could not increment category counts via fallback setDoc either.', fallbackErr)
+          }
         }
       }
 

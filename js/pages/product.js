@@ -1009,11 +1009,17 @@ async function syncInteractionsState(productId) {
 async function fetchReviews(productId) {
   try {
     const snap = await getDocs(
-      query(collection(db, 'reviews'), where('productId', '==', productId), orderBy('createdAt', 'desc'))
+      query(collection(db, 'reviews'), where('productId', '==', productId))
     )
     reviews = []
     snap.forEach(docSnap => {
       reviews.push({ id: docSnap.id, ...docSnap.data() })
+    })
+    // Sort reviews locally by createdAt desc to bypass index requirements
+    reviews.sort((a, b) => {
+      const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt || 0)
+      const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt || 0)
+      return dateB - dateA
     })
     filteredReviews = [...reviews]
   } catch (error) {
